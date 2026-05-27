@@ -329,7 +329,7 @@ filtered_df = working_df[working_df["Year"] == selected_year].copy()
 
 # ── Top Banner Image ──────────────────────────────────────────────────────────
 st.image("banner.png", use_container_width=True)
-st.markdown("<br>", unsafe_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ── KPI Row ───────────────────────────────────────────────────────────────────
 if filtered_df.empty:
