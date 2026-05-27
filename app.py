@@ -582,84 +582,143 @@ with col_box:
 
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-# ── STRATEGIC RECOMMENDATIONS & CALL TO ACTION (FIXED AND RENDERED) ───────────
+# ── ACTIONABLE INSIGHTS & RECOMMENDATIONS ──────────────────────────────
+
 st.markdown(f"""
-<div class="section-label">Policy Framework</div>
-<div class="section-title">Strategic Insights & Call to Action — {selected_year}</div>
+<div class="section-label">Executive Insights</div>
+<div class="section-title">Strategic Findings & Recommended Actions — {selected_year}</div>
 """, unsafe_allow_html=True)
 
-high_classroom_density = avg_ptr > 25.0
-low_funding = avg_ge < 15.0
+corr_value = working_df[["learning_poverty", selected_driver]].corr().iloc[0,1]
 
-priority_tags = []
-if avg_lp > 50: priority_tags.append("<span style='color:var(--accent1); font-weight:700;'>CRITICAL LEARNING POVERTY CRISIS</span>")
-if high_classroom_density: priority_tags.append("<span style='color:var(--accent2); font-weight:700;'>TEACHER SUPPLY SHORTAGE</span>")
-if low_funding: priority_tags.append("<span style='color:var(--accent4); font-weight:700;'>FISCAL UNDERINVESTMENT</span>")
+driver_relation = "positive" if corr_value > 0 else "negative"
 
-priority_status = " | ".join(priority_tags) if priority_tags else "<span style='color:var(--accent3); font-weight:700;'>STABLE MAINTENANCE MODE</span>"
+insight_color = "#F78166" if avg_lp > 50 else "#E3B341" if avg_lp > 30 else "#56D364"
 
 st.markdown(f"""
-<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 30px;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-        <div>
-            <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 18px; color: var(--text); font-weight: 700;">
-                🎯 SDG 4 Emergency Response Playbook
-            </h3>
-            <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--muted);">Data-driven structural interventions scaled for current selection profiles.</p>
-        </div>
-        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 0.05em;">
-            SYSTEM STATUS: {priority_status}
-        </div>
-    </div>
+<div style="
+background: var(--surface);
+border:1px solid var(--border);
+border-radius:16px;
+padding:28px;
+margin-bottom:25px;
+">
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">📉</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                1. Remediate Foundational Literacy
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                With global learning poverty hovering at <b style="color:var(--accent1);">{avg_lp:.1f}%</b> inside this runtime filter, countries must pivot curricula toward "Teaching at the Right Level" (TaRL). Focus strictly on foundational literacy before age 10 to eliminate downstream dropouts.
-            </p>
-        </div>
+<div style="
+font-size:15px;
+font-weight:700;
+color:{insight_color};
+margin-bottom:18px;
+">
+📌 Key Analytical Insights
+</div>
 
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">👩‍🏫</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                2. Optimize Instructional Capacity
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                Current active constraints reflect an average density of <b style="color:var(--accent2);">{avg_ptr:.1f}</b> pupils per teacher. Maintain or reduce this target balance while directly deploying continuous upskilling networks.
-            </p>
-        </div>
+<ul style="
+color:var(--text);
+font-size:13px;
+line-height:1.9;
+padding-left:20px;
+">
 
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">💎</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                3. Safeguard Fiscal Allocations
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                Education allocations currently average <b style="color:var(--accent4);">{avg_ge:.1f}%</b> of public budgets. Governments must codify a minimum structural expenditure floor of 15-20% ring-fenced for early education infrastructure.
-            </p>
-        </div>
-    </div>
+<li>
+Average learning poverty for the selected dataset is
+<b style="color:var(--accent1);">{avg_lp:.1f}%</b>,
+indicating that a substantial proportion of children remain below foundational reading proficiency.
+</li>
 
-    <div style="margin-top: 24px; padding: 16px; background: rgba(247, 129, 102, 0.06); border: 1px dashed rgba(247, 129, 102, 0.3); border-radius: 12px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div style="font-size: 24px;">📢</div>
-        <div style="flex: 1; min-width: 240px;">
-            <h4 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 14px; color: var(--accent1); font-weight: 700;">
-                The 2030 Countdown Action Directive
-            </h4>
-            <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text); line-height: 1.5;">
-                A selective 10% structural reduction in learning poverty yields significant lifelong macroeconomic productivity improvements. Ministries and global donors must unify reporting schemas instantly.
-            </p>
-        </div>
-        <div style="padding: 8px 16px; background: var(--accent1); color: var(--bg); font-weight: 700; font-size: 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
-            Blueprint Operational
-        </div>
-    </div>
+<li>
+<b>{worst}</b> records the highest learning poverty
+(<b>{worst_v:.1f}%</b>), while
+<b>{best}</b> demonstrates the strongest outcome
+(<b>{best_v:.1f}%</b>).
+This gap suggests major inequalities in education system performance.
+</li>
+
+<li>
+The selected driver —
+<b>{selected_driver_label}</b> —
+shows a
+<b>{driver_relation} relationship</b>
+with learning poverty
+(r = {corr_value:.2f}),
+indicating that changes in this factor may significantly influence educational outcomes.
+</li>
+
+<li>
+Current averages reveal:
+<b>{avg_ptr:.1f}</b> pupils per teacher,
+<b>{avg_tt:.1f}%</b> trained teachers,
+and
+<b>{avg_ge:.1f}%</b> government education spending.
+These structural conditions help explain disparities across countries.
+</li>
+
+</ul>
+
+<hr style="border:0.5px solid var(--border); margin:22px 0;">
+
+<div style="
+font-size:15px;
+font-weight:700;
+color:var(--accent2);
+margin-bottom:18px;
+">
+🚨 Recommended Actions / Policy Response
+</div>
+
+<ul style="
+color:var(--text);
+font-size:13px;
+line-height:1.9;
+padding-left:20px;
+">
+
+<li>
+Prioritize <b>foundational literacy recovery programs</b>,
+particularly in countries exceeding 50% learning poverty.
+Targeted early-grade interventions should become immediate national priorities.
+</li>
+
+<li>
+Strengthen <b>teacher recruitment, classroom capacity, and professional training</b>
+to improve instructional quality and reduce overcrowding.
+</li>
+
+<li>
+Increase or safeguard <b>education expenditure allocations</b>,
+especially for early education, teacher development, and learning assessment systems.
+</li>
+
+<li>
+Adopt <b>continuous monitoring frameworks</b>
+using SDG-aligned indicators to identify emerging risks and evaluate intervention effectiveness.
+</li>
+
+<li>
+Promote stronger coordination among
+<b>ministries, schools, international donors, and local education stakeholders</b>
+to accelerate progress toward SDG 4 targets by 2030.
+</li>
+
+</ul>
+
+<div style="
+margin-top:22px;
+padding:16px;
+background:rgba(121,192,255,0.08);
+border-left:4px solid var(--accent2);
+border-radius:10px;
+">
+
+<b style="color:var(--accent2);">Action Insight:</b>
+
+If learning poverty is reduced even incrementally across high-burden countries,
+the cumulative effect can substantially improve literacy attainment,
+future employability,
+and long-term economic productivity.
+
+</div>
+
 </div>
 """, unsafe_allow_html=True)
 
