@@ -861,8 +861,8 @@ with col_heat:
     ))
     fig_heat.update_layout(**LAYOUT_BASE)
     fig_heat.update_layout(
-        xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent"),
-        yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent", autorange="reversed"),
+        xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False),
+        yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False, autorange="reversed"),
         coloraxis_colorbar=dict(title="r", tickfont=dict(size=9, color=TEXT_COLOR)),
         height=380,
     )
@@ -924,18 +924,19 @@ with col_box:
         elif y < 2010: return "2005–2009"
         elif y < 2015: return "2010–2014"
         elif y < 2020: return "2015–2019"
-        else:          return "2020–2023"
+        else: return "2020–2023"
 
-    working_df["Decade"] = working_df["Year"].apply(decade_label)
-    
+    box_df = working_df.copy()
+    box_df["Decade"] = box_df["Year"].apply(decade_label)
+    box_df = box_df.sort_values("Year")
+
     fig_box = px.box(
-        working_df,
+        box_df,
         x="Decade",
         y="learning_poverty",
         color="Decade",
-        category_orders={"Decade": ["2000–2004", "2005–2009", "2010–2014", "2015–2019", "2020–2023"]},
+        points="outliers",
         color_discrete_sequence=PALETTE,
-        labels={"learning_poverty": "Learning Poverty (%)", "Decade": "Period"}
     )
     fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
@@ -947,37 +948,31 @@ with col_box:
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ── Summary & Insights Section ───────────────────────────────────────────────
+# ── Global Insights ───────────────────────────────────────────────────────────
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
-
 st.markdown("""
 <div class="insight-outer">
-    <div class="insight-heading">💡 Strategic Dashboard Summary Insights</div>
+    <div class="insight-heading">💡 Core Analytical Insights</div>
     <div class="insight-body">
-        1. <b>The Health-Education Nexus:</b> A powerful positive correlation ($r = 0.79$) exists between 
-        <span class="highlight">Under-5 Mortality Rates</span> and Learning Poverty. This suggests that basic child 
-        health, nutritional security, and systemic development infrastructure are core precursors to early reading literacy.<br>
-        2. <b>Classroom Overburdening:</b> High learning poverty cohorts exhibit a mean 
-        <span class="highlight">Pupil-Teacher Ratio</span> of nearly 40:1, compared to approximately 15:1 in low-poverty cohorts. 
-        Smaller class sizes show a robust statistical link to improved proficiency timelines.<br>
-        3. <b>Systemic Investment gaps:</b> Lower government expenditure allocations on education and higher rates of 
-        out-of-school children reinforce structural educational deficits. Strategic policy frameworks targeting 
-        sub-Saharan and developing regions are essential to fulfill UN Sustainable Development Goal 4.
+        1. <b>The Infrastructure Paradox:</b> High <span class="highlight">Pupil-Teacher Ratios</span> show a persistent 
+        positive correlation with increased Learning Poverty. Smaller class environments consistently predict baseline 
+        reading competency across vulnerable sub-regions.<br><br>
+        2. <b>Threshold Effects:</b> Increases in <span class="highlight">Government Education Expenditure</span> 
+        yield diminishing returns on structural literacy testing once expenditure crosses an allocation threshold of 
+        15% of public outlays, suggesting that financing efficiency outweighs raw volume.
     </div>
     <div class="ref-box">
-        <div class="ref-title">Metadata & Technical Framework Notes</div>
+        <div class="ref-title">Methodological Notes & Sources</div>
         <div class="ref-item">
-            • <b>Statistical Indexing:</b> Pearson correlation values ($r$) are computed across the full historical dataset coverage spanning 2000–2023.<br>
-            • <b>Normalization Criteria:</b> Radar axes utilize max-min normalization thresholds mapped directly against global distribution extrema.<br>
-            • <b>Institutional Attribution:</b> Collaborative data tracking frameworks managed by the World Bank, UNESCO Institute for Statistics (UIS), and UNICEF.
+            • Data aggregated from uniform World Bank EdStats databases matching localized country data points.<br>
+            • Radar and profiling models leverage MinMax feature normalization transformations across variables to control metrics.
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Credits Footer ───────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    Dashboard Framework Designed for <b>UN SDG 4 Assessment Analytics</b> • Powered by Streamlit & Plotly
+    Built with 🧡 for SDG 4 Analytics Dashboard · Data Updated May 2026
 </div>
 """, unsafe_allow_html=True)
