@@ -131,11 +131,11 @@ st.markdown("""
 # ─── DATA LOADING ────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    dd   = pd.read_csv("data/dashboard_data.csv")
-    cd   = pd.read_csv("data/cleaned_dataset.csv")
-    diag = pd.read_csv("data/diagnostics_results.csv")
-    corr = pd.read_csv("data/correlation_results.csv")
-    with open("data/model_params.json") as f:
+    dd   = pd.read_csv("dashboard_data.csv")
+    cd   = pd.read_csv("cleaned_dataset.csv")
+    diag = pd.read_csv("diagnostics_results.csv")
+    corr = pd.read_csv("correlation_results.csv")
+    with open("model_params.json") as f:
         mp = json.load(f)
     full = cd.merge(
         dd[["Country Name","Country Code","Year",
