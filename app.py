@@ -491,7 +491,7 @@ with col_heat:
 
     fig_heat = go.Figure(go.Heatmap(
         z=corr_matrix, x=corr_labels, y=corr_labels,
-        colorscale=[[0.0,"#0d4f8c"],[0.3,"#1a6bb0"],[0.5 warmth,"#161B22"],[0.7,"#8b2500"],[1.0,"#F78166"]],
+        colorscale=[[0.0,"#0d4f8c"],[0.3,"#1a6bb0"],[0.5,"#161B22"],[0.7,"#8b2500"],[1.0,"#F78166"]],
         zmin=-1, zmax=1,
         text=[[f"{v:.2f}" for v in row] for row in corr_matrix],
         texttemplate="%{text}",
