@@ -198,7 +198,7 @@ st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("""
 <div class="section-label">Spatial Distribution</div>
 <div class="section-title">Global Analysis Engine Profile Matrix</div>
-<div style="font-size:13.5px;color:#8B949E;line-height:1.8;margin-top:-12px;margin-bottom:20px;max-width:820px;">This dashboard tracks <b style="color:#E6EDF3;">learning poverty</b> — the share of children unable to read a simple text by age 10 — across 75 countries from 2000 to 2023. Use the year slider below to explore how key education indicators shift over time, and every chart, map, and metric on this page updates in sync. Data is modelled using <b style="color:#E6EDF3;"></div>
+<div style="font-size:13.5px;color:#8B949E;line-height:1.8;margin-top:-12px;margin-bottom:20px;max-width:820px;">This dashboard tracks <b style="color:#E6EDF3;">learning poverty</b> — the share of children unable to read a simple text by age 10 — across 75 countries from 2000 to 2023. Use the year slider below to explore how key education indicators shift over time, and every chart, map, and metric on this page updates in sync."></div>
 """, unsafe_allow_html=True)
 
 selected_year = st.slider(
