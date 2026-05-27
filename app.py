@@ -199,7 +199,7 @@ section[data-testid="stSidebar"] .stSlider label {
     color: var(--muted);
 }
 
-/* ── Stat Pills (top/bottom country) ── */
+/* ── Stat Pills ── */
 .stat-row {
     display: flex;
     gap: 10px;
@@ -593,7 +593,6 @@ with col_map:
         labels={"learning_poverty": "Learning Poverty (%)"},
     )
     
-    # Sequential updates to avoid duplicate keyword arguments
     fig_map.update_layout(**LAYOUT_BASE)
     fig_map.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
@@ -797,6 +796,13 @@ with col_radar:
     bottom6_n = (bottom6 - vmin) / (vmax - vmin)
 
     fig_radar = go.Figure()
+    
+    # Explicit RGBA mappings used here to avoid Plotly ValueError crash 
+    fill_colors = {
+        "#F78166": "rgba(247, 129, 102, 0.15)",
+        "#56D364": "rgba(86, 211, 100, 0.15)"
+    }
+    
     for vals, name, color in [
         (top6_n,    "High LP Countries", "#F78166"),
         (bottom6_n, "Low LP Countries",  "#56D364"),
@@ -809,7 +815,7 @@ with col_radar:
             fill="toself",
             name=name,
             line=dict(color=color, width=2),
-            fillcolor=color.replace(")", ",0.15)").replace("rgb", "rgba") if "rgb" in color else f"{color}26",
+            fillcolor=fill_colors.get(color, "rgba(255, 255, 255, 0.15)"),
             marker=dict(size=6, color=color),
         ))
 
@@ -921,21 +927,57 @@ with col_box:
         else:          return "2020–2023"
 
     working_df["Decade"] = working_df["Year"].apply(decade_label)
-
+    
     fig_box = px.box(
         working_df,
         x="Decade",
         y="learning_poverty",
         color="Decade",
         category_orders={"Decade": ["2000–2004", "2005–2009", "2010–2014", "2015–2019", "2020–2023"]},
-        color_discrete_sequence=PALETTE
+        color_discrete_sequence=PALETTE,
+        labels={"learning_poverty": "Learning Poverty (%)", "Decade": "Period"}
     )
     fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
-        xaxis={**AXIS_BASE, "title_text": "Decade"},
+        xaxis={**AXIS_BASE, "title_text": "Time Period"},
         yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
         showlegend=False,
         height=360,
     )
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
+
+# ── Summary & Insights Section ───────────────────────────────────────────────
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
+
+st.markdown("""
+<div class="insight-outer">
+    <div class="insight-heading">💡 Strategic Dashboard Summary Insights</div>
+    <div class="insight-body">
+        1. <b>The Health-Education Nexus:</b> A powerful positive correlation ($r = 0.79$) exists between 
+        <span class="highlight">Under-5 Mortality Rates</span> and Learning Poverty. This suggests that basic child 
+        health, nutritional security, and systemic development infrastructure are core precursors to early reading literacy.<br>
+        2. <b>Classroom Overburdening:</b> High learning poverty cohorts exhibit a mean 
+        <span class="highlight">Pupil-Teacher Ratio</span> of nearly 40:1, compared to approximately 15:1 in low-poverty cohorts. 
+        Smaller class sizes show a robust statistical link to improved proficiency timelines.<br>
+        3. <b>Systemic Investment gaps:</b> Lower government expenditure allocations on education and higher rates of 
+        out-of-school children reinforce structural educational deficits. Strategic policy frameworks targeting 
+        sub-Saharan and developing regions are essential to fulfill UN Sustainable Development Goal 4.
+    </div>
+    <div class="ref-box">
+        <div class="ref-title">Metadata & Technical Framework Notes</div>
+        <div class="ref-item">
+            • <b>Statistical Indexing:</b> Pearson correlation values ($r$) are computed across the full historical dataset coverage spanning 2000–2023.<br>
+            • <b>Normalization Criteria:</b> Radar axes utilize max-min normalization thresholds mapped directly against global distribution extrema.<br>
+            • <b>Institutional Attribution:</b> Collaborative data tracking frameworks managed by the World Bank, UNESCO Institute for Statistics (UIS), and UNICEF.
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── Credits Footer ───────────────────────────────────────────────────────────
+st.markdown("""
+<div class="credits">
+    Dashboard Framework Designed for <b>UN SDG 4 Assessment Analytics</b> • Powered by Streamlit & Plotly
+</div>
+""", unsafe_allow_html=True)
