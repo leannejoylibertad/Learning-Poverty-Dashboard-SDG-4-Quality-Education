@@ -65,6 +65,33 @@ section[data-testid="stSidebar"] .stSlider label{font-family:'Instrument Sans',s
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+
+/* ── Insight Cards ── */
+.insight-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;}
+.insight-headline{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:6px;}
+.insight-subline{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px;}
+.insight-card{border-radius:12px;padding:18px 20px;border-left:4px solid;}
+.insight-card.red{background:rgba(247,129,102,0.08);border-color:#F78166;}
+.insight-card.blue{background:rgba(121,192,255,0.08);border-color:#79C0FF;}
+.insight-card.yellow{background:rgba(227,179,65,0.08);border-color:#E3B341;}
+.insight-card.green{background:rgba(86,211,100,0.08);border-color:#56D364;}
+.insight-card-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.insight-card.red .insight-card-title{color:#F78166;}
+.insight-card.blue .insight-card-title{color:#79C0FF;}
+.insight-card.yellow .insight-card-title{color:#E3B341;}
+.insight-card.green .insight-card-title{color:#56D364;}
+.insight-card-stat{font-size:28px;font-weight:800;color:var(--text);margin-bottom:6px;line-height:1.1;}
+.insight-card-body{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.insight-card-body b{color:var(--text);}
+.action-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:20px;}
+.action-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;}
+.action-icon{font-size:20px;margin-top:2px;flex-shrink:0;}
+.action-text{font-size:12.5px;color:var(--muted);line-height:1.6;}
+.action-text b{color:var(--text);display:block;font-size:13px;margin-bottom:2px;}
+.urgency-bar{height:8px;border-radius:4px;background:var(--border);margin:8px 0;overflow:hidden;}
+.urgency-fill{height:100%;border-radius:4px;}
+.urgency-fill.red{background:linear-gradient(90deg,#E3B341,#F78166,#7a0f00);}
 </style>
 """, unsafe_allow_html=True)
 
@@ -164,7 +191,7 @@ else:
     """, unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Dynamic Time-Series Selection (The Single Source of Truth) ──────────────────
+# ── Dynamic Time-Series Selection ─────────────────────────────────────────────
 st.markdown(f"""
 <div class="section-label">Spatial Distribution</div>
 <div class="section-title">Global Analysis Engine Profile Matrix</div>
@@ -312,7 +339,7 @@ with col_bar:
         ]
         fig_bar_chart = go.Figure(go.Bar(
             x=top15["learning_poverty"],
-            y=top15["Country Name"],  
+            y=top15["Country Name"],
             orientation="h",
             marker_color=colors_bar,
             text=[f"{v:.1f}%" for v in top15["learning_poverty"]],
@@ -395,7 +422,7 @@ with col_scatter:
                 x=selected_driver,
                 y="learning_poverty",
                 color="learning_poverty",
-                hover_name="Country Name",   
+                hover_name="Country Name",
                 hover_data={selected_driver: ":.2f", "learning_poverty": ":.1f", "Country Code": False},
                 color_continuous_scale=[[0,"#56D364"],[0.5,"#E3B341"],[1,"#F78166"]],
                 range_color=[0, 100],
@@ -581,33 +608,172 @@ with col_box:
 
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-# ── INSIGHTS & RECOMMENDATIONS ────────────────────────────────────────────────
+# ── INSIGHTS & CALL TO ACTION ─────────────────────────────────────────────────
+
+# Compute supporting stats for insights
+corr_value      = working_df[["learning_poverty", selected_driver]].corr(method='spearman').iloc[0,1]
+driver_relation = "positive" if corr_value > 0 else "negative"
+insight_color   = "#F78166" if avg_lp > 50 else "#E3B341" if avg_lp > 30 else "#56D364"
+
+# How far is avg_lp from SDG 4 target of ≤10%?
+gap_to_target = max(0, avg_lp - 10.0)
+
+# What % of countries in view are above 50% LP?
+critical_count   = len(filtered_df[filtered_df["learning_poverty"] >= 50])
+critical_pct     = (critical_count / n_countries * 100) if n_countries > 0 else 0
+
+# Urgency fill width (cap at 100)
+urgency_pct = min(100, avg_lp)
+
+# Trained teacher gap: how many points below 80% benchmark?
+tt_gap = max(0, 80.0 - avg_tt)
+
+# Compute the year-over-year trend direction using the full working_df
+trend_recent = working_df[working_df["Year"] >= 2010].groupby("Year")["learning_poverty"].mean()
+if len(trend_recent) >= 2:
+    lp_change = trend_recent.iloc[-1] - trend_recent.iloc[0]
+    trend_direction = "declining" if lp_change < -2 else "stagnating" if abs(lp_change) <= 2 else "worsening"
+    trend_label     = f"{'↓' if lp_change < 0 else '↑'} {abs(lp_change):.1f} pp since 2010"
+else:
+    trend_direction = "unclear"
+    trend_label     = "Insufficient trend data"
+
 st.markdown(f"""
-<div class="section-label">Executive Insights</div>
-<div class="section-title">Strategic Findings & Recommended Actions — {selected_year}</div>
+<div class="section-label">Evidence-Based Insights</div>
+<div class="section-title">What the Data Is Telling Us — And What Must Be Done</div>
 """, unsafe_allow_html=True)
 
-corr_value       = working_df[["learning_poverty", selected_driver]].corr(method='spearman').iloc[0,1]
-driver_relation  = "positive" if corr_value > 0 else "negative"
-insight_color    = "#F78166" if avg_lp > 50 else "#E3B341" if avg_lp > 30 else "#56D364"
-
+# ── Panel 1: The Scale of the Crisis ────
 st.markdown(f"""
-<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:25px;">
-    <div style="font-size:15px;font-weight:700;color:{insight_color};margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        🎯 System Diagnosis Summary
+<div class="insight-panel">
+    <div class="insight-headline" style="color:{insight_color};">
+        {avg_lp:.1f}% of children cannot read a simple text by age 10.
     </div>
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px; font-size:13px; line-height:1.6;">
-        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
-            <b style="color:var(--accent1)">Workforce Saturation</b><br>
-            Current selection patterns exhibit an average pupil-to-teacher ratio density of <b>{avg_ptr:.1f}</b>, requiring strategic workforce realignments.
+    <div class="insight-subline">
+        In {selected_year}, across {n_countries} countries in this dataset, learning poverty sits at an average of <b style="color:{insight_color}">{avg_lp:.1f}%</b> —
+        a gap of <b style="color:#F78166">{gap_to_target:.1f} percentage points</b> from the SDG 4 target of ≤10%.
+        At this pace, the goal will not be met by 2030.
+    </div>
+
+    <div style="margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">
+            Distance from SDG 4 Target (≤10%) — Current avg: {avg_lp:.1f}%
         </div>
-        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
-            <b style="color:var(--accent2)">Driver Correlation</b><br>
-            The selected metric <b>{selected_driver_label}</b> correlates with a <b>{driver_relation}</b> directional factor of <b>{corr_value:.2f}</b> against global literacy benchmarks.
+        <div class="urgency-bar">
+            <div class="urgency-fill red" style="width:{urgency_pct}%;"></div>
         </div>
-        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
-            <b style="color:var(--accent4)">Fiscal Allocations</b><br>
-            Public spending profiles hover near <b>{avg_ge:.1f}%</b> of total state budgets, validating a continuous demand for protected educational capital pipelines.
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
+            <span>0%</span><span style="color:#56D364;">SDG Target: 10%</span><span>100%</span>
+        </div>
+    </div>
+
+    <div class="insight-grid">
+        <div class="insight-card red">
+            <div class="insight-card-title">🚨 Critical Cases</div>
+            <div class="insight-card-stat">{critical_count} countries</div>
+            <div class="insight-card-body">
+                <b>{critical_pct:.0f}% of countries</b> in this view have learning poverty above 50% —
+                meaning more than half of their children will enter adulthood unable to read proficiently.
+                This is not a statistic. This is a generation.
+            </div>
+        </div>
+        <div class="insight-card yellow">
+            <div class="insight-card-title">📉 Trend Signal</div>
+            <div class="insight-card-stat">{trend_label}</div>
+            <div class="insight-card-body">
+                The global average is <b>{trend_direction}</b> since 2010.
+                {"Progress is real but dangerously slow — <b>the 2030 deadline is 5 years away</b>." if trend_direction == "declining" else
+                 "<b>No meaningful progress has been made.</b> Without intervention, today's children will inherit tomorrow's illiteracy." if trend_direction == "stagnating" else
+                 "<b>The situation is getting worse.</b> Inaction now means a deeper crisis by 2030."}
+            </div>
+        </div>
+        <div class="insight-card blue">
+            <div class="insight-card-title">🔗 Driver Signal</div>
+            <div class="insight-card-stat">r = {corr_value:.2f}</div>
+            <div class="insight-card-body">
+                <b>{selected_driver_label}</b> shows a <b>{driver_relation} correlation</b> with learning poverty.
+                {"This means more teachers <i>alone</i> won't fix it — quality and training matter more." if selected_driver == "pupil_teacher_ratio" else
+                 "Every 10pp drop in trained teachers is associated with measurably higher LP. <b>Teacher quality is the single most actionable lever.</b>" if selected_driver == "trained_teachers" else
+                 "Spending more without targeting classrooms first is wasteful. Allocation quality matters as much as quantity." if selected_driver == "gov_expenditure" else
+                 "Children out of school cannot learn to read. Re-enrollment campaigns must be the floor, not the ceiling." if selected_driver == "children_out_of_school" else
+                 "Children who survive but cannot read face a double burden of poverty. Health and education crises are inseparable." if selected_driver == "u5_mortality" else
+                 "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."}
+            </div>
+        </div>
+        <div class="insight-card green">
+            <div class="insight-card-title">✅ What Works</div>
+            <div class="insight-card-stat">{best} ({best_v:.1f}%)</div>
+            <div class="insight-card-body">
+                <b>{best}</b> achieves the lowest learning poverty in this view at <b>{best_v:.1f}%</b>.
+                Compare its trained teacher rate and expenditure profile against the worst performers —
+                the gap is a policy choice, not a destiny.
+            </div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── Panel 2: What Must Be Done ────
+st.markdown(f"""
+<div class="insight-panel">
+    <div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">
+        🎯 From Evidence to Action — What Policymakers Must Prioritize
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">
+        The Huber regression model identifies the levers with the strongest statistical signal.
+        The following actions are ranked by model weight and policy feasibility.
+    </div>
+
+    <div class="action-row">
+        <div class="action-item">
+            <div class="action-icon">🧑‍🏫</div>
+            <div class="action-text">
+                <b>Train every teacher, not just hire more</b>
+                Average trained teacher coverage is <b>{avg_tt:.1f}%</b> — a gap of
+                <b>{tt_gap:.1f} pp</b> from the 80% benchmark.
+                Untrained teachers are the single largest model predictor of high LP.
+                Pre-service and in-service training programs must be mandatory, funded, and monitored.
+            </div>
+        </div>
+        <div class="action-item">
+            <div class="action-icon">💸</div>
+            <div class="action-text">
+                <b>Spend smarter, not just more</b>
+                Average gov. expenditure is <b>{avg_ge:.1f}%</b> of GDP per capita.
+                Countries above 20% with poor outcomes are mis-allocating funds.
+                Redirect budgets toward foundational literacy programs in grades 1–3,
+                where intervention has the highest ROI.
+            </div>
+        </div>
+        <div class="action-item">
+            <div class="action-icon">🏥</div>
+            <div class="action-text">
+                <b>Address health as an education crisis</b>
+                U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is a strong model predictor.
+                Children weakened by preventable disease cannot learn effectively.
+                Joint health-education budgeting in high-LP countries is not optional — it is necessary.
+            </div>
+        </div>
+        <div class="action-item">
+            <div class="action-icon">📊</div>
+            <div class="action-text">
+                <b>Close the data gap — what isn't measured isn't fixed</b>
+                Multiple countries show missing LP data for recent years.
+                Without annual, standardized assessments, governments cannot course-correct.
+                Invest in national learning assessments aligned to PIRLS/EGRA standards.
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:22px;padding:16px;background:rgba(247,129,102,0.07);border-radius:10px;border:1px solid rgba(247,129,102,0.2);">
+        <div style="font-size:13px;font-weight:700;color:#F78166;margin-bottom:6px;">⏰ The 2030 Clock Is Running</div>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.7;">
+            SDG 4 set a 2030 deadline to ensure all children can read by age 10.
+            With <b style="color:var(--text)">fewer than 5 years remaining</b>, the window for course-correction is closing fast.
+            A child starting primary school today will be 10 years old in 2030.
+            The decisions made by governments <i>this year</i> will determine whether that child
+            can read — or becomes part of the next generation's learning poverty statistic.
+            <b style="color:#F78166">Data without action is just a number. Act on what you see here.</b>
         </div>
     </div>
 </div>
