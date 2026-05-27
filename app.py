@@ -592,8 +592,10 @@ with col_map:
         range_color=[0, 100],
         labels={"learning_poverty": "Learning Poverty (%)"},
     )
+    
+    # Sequential updates to avoid duplicate keyword arguments
+    fig_map.update_layout(**LAYOUT_BASE)
     fig_map.update_layout(
-        **LAYOUT_BASE,
         margin=dict(l=0, r=0, t=0, b=0),
         geo=dict(
             showframe=False,
@@ -643,8 +645,8 @@ with col_bar:
         textfont=dict(size=11, color=TEXT_COLOR),
         hovertemplate="<b>%{y}</b><br>Learning Poverty: %{x:.1f}%<extra></extra>",
     ))
+    fig_bar.update_layout(**LAYOUT_BASE)
     fig_bar.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)", range=[0, 115]),
         yaxis=dict(**AXIS_BASE, title_text="", showgrid=False),
         height=380,
@@ -716,8 +718,8 @@ with col_trend:
         annotation_font=dict(color="#79C0FF", size=11),
     )
     
+    fig_trend.update_layout(**LAYOUT_BASE)
     fig_trend.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(**AXIS_BASE, title_text="Year"),
         yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         height=360,
@@ -755,8 +757,8 @@ with col_scatter:
         selector=dict(mode="markers"),
         marker=dict(size=10, line=dict(width=0.5, color="rgba(255,255,255,0.2)")),
     )
+    fig_scatter.update_layout(**LAYOUT_BASE)
     fig_scatter.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(**AXIS_BASE, title_text=selected_driver_label),
         yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         coloraxis_showscale=False,
@@ -811,8 +813,8 @@ with col_radar:
             marker=dict(size=6, color=color),
         ))
 
+    fig_radar.update_layout(**LAYOUT_BASE)
     fig_radar.update_layout(
-        **LAYOUT_BASE,
         polar=dict(
             bgcolor=PLOT_BG,
             radialaxis=dict(visible=True, range=[0, 1], tickfont=dict(size=9, color=TEXT_COLOR), gridcolor=GRID_COLOR, linecolor=GRID_COLOR),
@@ -851,8 +853,8 @@ with col_heat:
         textfont=dict(size=10, color="white"),
         hovertemplate="<b>%{x}</b> × <b>%{y}</b><br>r = %{z:.3f}<extra></extra>",
     ))
+    fig_heat.update_layout(**LAYOUT_BASE)
     fig_heat.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent"),
         yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent", autorange="reversed"),
         coloraxis_colorbar=dict(title="r", tickfont=dict(size=9, color=TEXT_COLOR)),
@@ -896,8 +898,8 @@ with col_multi:
             hovertemplate=f"<b>{country}</b><br>Year: %{{x}}<br>LP: %{{y:.1f}}%<extra></extra>",
         ))
 
+    fig_multi.update_layout(**LAYOUT_BASE)
     fig_multi.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(**AXIS_BASE, title_text="Year"),
         yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         height=360,
@@ -924,49 +926,45 @@ with col_box:
 
     fig_box = go.Figure()
     for dec, col in zip(decade_order, decade_colors):
-        sub = working_df[working_df["Decade"] == dec]
-        if not sub.empty:
+        df_dec = working_df[working_df["Decade"] == dec]
+        if not df_dec.empty:
             fig_box.add_trace(go.Box(
-                y=sub["learning_poverty"],
+                y=df_dec["learning_poverty"],
                 name=dec,
                 marker_color=col,
-                boxpoints="outliers",
-                hovertemplate="<b>%{x}</b><br>Learning Poverty: %{y:.1f}%<extra></extra>"
+                boxpoints="outliers"
             ))
             
+    fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
-        **LAYOUT_BASE,
         xaxis=dict(**AXIS_BASE, title_text="Time Period"),
         yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
-        showlegend=False,
         height=360,
+        showlegend=False
     )
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ── INSIGHTS & REFERENCES ───────────────────────────────────────────────────
-st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
-
+# ── Insights Block ────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="insight-outer">
-    <div class="insight-heading">💡 Core Analytical Insights</div>
+    <div class="insight-heading">💡 Strategic Insights & Policy Implications</div>
     <div class="insight-body">
-        1. <span class="highlight">The Health-Education Nexus:</span> There is an exceptionally strong positive correlation (<b>r = 0.79</b>) between under-5 mortality rates and learning poverty. This underscores that foundational community-level health and childhood survival indicators are deeply intertwined with cognitive literacy outcomes.<br><br>
-        2. <span class="highlight">Classroom Strain:</span> High pupil-teacher ratios exhibit a pronounced positive correlation (<b>r = 0.67</b>) with reading deficits. As instructional class sizes expand, individual student attention drops, predictably compounding learning poverty rates.<br><br>
-        3. <span class="highlight">Systemic Investment:</span> Both teacher qualification standards (<b>r = -0.45</b>) and national education expenditure (<b>r = -0.31</b>) show an inverse relationship with learning poverty. Strong financial dedication and certified instructional capacity serve as critical protective buffers against global educational poverty.
-    </div>
-    
-    <div class="ref-box">
-        <div class="ref-title">📋 Definitions & Source Materials</div>
-        <div class="ref-item"><b>Learning Poverty Rate:</b> The percentage of children who cannot read and understand a simple, age-appropriate text by age 10. This metric acts as a proxy indicator for elementary instructional health.</div>
-        <div class="ref-item"><b>Data Attribution:</b> Metrics compiled across the 2000–2023 timeframe from harmonized reporting networks managed by the World Bank, UNESCO Institute for Statistics (UIS), and UNICEF monitoring databases.</div>
+        1. <b>The Quality Imperative:</b> Merely increasing school enrollment rates is insufficient. The strong correlation between 
+        <span class="highlight">Pupils Below Minimum Proficiency</span> and Learning Poverty indicates that classroom 
+        instructional quality and effective pedagogical practice are the primary bottlenecks.<br><br>
+        2. <b>Teacher Resource Allocation:</b> The <span class="highlight">Pupil-Teacher Ratio</span> remains a critical operational 
+        metric. Unfavorable ratios severely limit individual student attention, compounding early reading deficiencies in foundational stages.<br><br>
+        3. <b>Socioeconomic Intersections:</b> The heavy historical interaction with indicators such as <span class="highlight">Under-5 Mortality</span> suggests 
+        that educational achievement rates are fundamentally tied to wider structural improvements in child health, nutrition, and institutional development.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── CREDITS ──────────────────────────────────────────────────────────────────
+# ── Footer Credits ─────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    Developed for the <b>SDG 4 Progress Tracking Initiative</b> · Data compiled via World Bank Education Architecture.
+    Dashboard developed for <b>SDG 4 Monitoring</b> · Data sources: World Bank Education Statistics, UNESCO Institute for Statistics & UNICEF.
 </div>
 """, unsafe_allow_html=True)
+
