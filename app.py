@@ -186,17 +186,17 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── Header Banner ─────────────────────────────────────────────────────────────
-st.markdown(f"""
-<div style='background:var(--surface);border:1px solid var(--border);padding:26px;border-radius:16px;margin-bottom:10px;'>
-    <span style='font-size:10px;font-weight:800;color:var(--accent1);letter-spacing:.2em;'>UN SUSTAINABLE DEVELOPMENT GOAL 4</span>
-    <h1 style='margin:4px 0 0 0;color:var(--text);font-weight:800;font-size:30px;'>Drivers of Learning Poverty</h1>
-    <div style='font-size:13px;color:#8B949E;margin-top:6px;'>
-        Huber Robust Regression Analysis · 75 Countries · 2000–2023 ·
-        Response: <b style='color:#F78166'>learning_poverty</b>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+# ── Header Banner Image ───────────────────────────────────────────────────────
+banner_path = "banner.png"
+
+if os.path.exists(banner_path):
+    st.image(
+        banner_path,
+        use_container_width=True
+    )
+else:
+    st.warning("banner.png not found. Check your Git repository root folder.")
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Year Slider ───────────────────────────────────────────────────────────────
