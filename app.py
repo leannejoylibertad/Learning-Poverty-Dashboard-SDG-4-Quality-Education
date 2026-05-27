@@ -92,10 +92,14 @@ section[data-testid="stSidebar"] .stSlider label {
     position: relative;
     overflow: hidden;
     transition: border-color 0.2s ease, transform 0.2s ease;
-    min-height: 160px;
+    
+    /* Changed from min-height to a strict, fixed height to keep cards perfectly identical */
+    height: 160px; 
+    
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    box-sizing: border-box; /* Forces padding to stay inside the 160px boundaries */
 }
 .kpi-card:hover { border-color: rgba(247,129,102,0.4); transform: translateY(-2px); }
 .kpi-card::before {
