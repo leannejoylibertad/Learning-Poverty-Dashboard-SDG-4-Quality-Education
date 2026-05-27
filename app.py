@@ -16,7 +16,7 @@ st.set_page_config(
 # ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap');
 
 /* ── Root Variables ── */
 :root {
@@ -38,7 +38,7 @@ st.markdown("""
 
 /* ── Base ── */
 html, body, [class*="css"] {
-    font-family: 'Instrument Sans', sans-serif !important;
+    font-family: 'Instrument Sans', sans-serif;
     background-color: var(--bg) !important;
     color: var(--text) !important;
 }
@@ -65,6 +65,71 @@ section[data-testid="stSidebar"] .stSlider label {
     color: var(--muted) !important;
 }
 
+/* ── Hero Header ── */
+.hero {
+    background: linear-gradient(135deg, #0D1117 0%, #1a1f2e 50%, #0D1117 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 56px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(247,129,102,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(121,192,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero-eyebrow {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 12px;
+}
+.hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 54px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+.hero-title span { color: var(--accent1); }
+.hero-subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 700px;
+    line-height: 1.7;
+}
+.hero-badge {
+    display: inline-block;
+    background: rgba(247,129,102,0.15);
+    border: 1px solid rgba(247,129,102,0.3);
+    color: var(--accent1);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-right: 8px;
+    margin-top: 20px;
+}
+
 /* ── Section Labels ── */
 .section-label {
     font-family: 'Instrument Sans', sans-serif;
@@ -76,81 +141,68 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 6px;
 }
 .section-title {
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Syne', sans-serif;
     font-size: 24px;
     font-weight: 700;
     color: var(--text);
     margin-bottom: 20px;
 }
 
-/* ── KPI Cards (Fluid & High-Contrast Safety Layout) ── */
+/* ── KPI Cards ── */
 .kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 22px 20px;
+    padding: 24px 22px;
     position: relative;
     overflow: hidden;
     transition: border-color 0.2s ease, transform 0.2s ease;
-    
-    /* Dynamic Scaling Setup */
-    box-sizing: border-box;
-    min-height: 175px; 
-    height: 100%;
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 .kpi-card:hover { border-color: rgba(247,129,102,0.4); transform: translateY(-2px); }
 .kpi-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 4px;
+    height: 3px;
 }
-.kpi-red::before    { background: var(--grad1); }
-.kpi-blue::before   { background: var(--grad2); }
-.kpi-green::before  { background: var(--grad3); }
-.kpi-yellow::before { background: var(--grad4); }
+.kpi-red::before   { background: var(--grad1); }
+.kpi-blue::before  { background: var(--grad2); }
+.kpi-green::before { background: var(--grad3); }
+.kpi-yellow::before{ background: var(--grad4); }
 
 .kpi-icon {
-    font-size: 26px;
-    margin-bottom: 8px;
+    font-size: 28px;
+    margin-bottom: 12px;
     display: block;
 }
 .kpi-label {
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.10em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 6px;
-    line-height: 1.3;
-}
-.kpi-value {
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 34px;
-    font-weight: 800;
-    line-height: 1.1;
     margin-bottom: 8px;
 }
-.kpi-red .kpi-value    { color: var(--accent1); }
-.kpi-blue .kpi-value   { color: var(--accent2); }
-.kpi-green .kpi-value  { color: var(--accent3); }
-.kpi-yellow .kpi-value { color: var(--accent4); }
-
+.kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+.kpi-red .kpi-value   { color: var(--accent1); }
+.kpi-blue .kpi-value  { color: var(--accent2); }
+.kpi-green .kpi-value { color: var(--accent3); }
+.kpi-yellow .kpi-value{ color: var(--accent4); }
 .kpi-sub {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--muted);
-    line-height: 1.4;
-    margin-top: auto; 
 }
 
-/* ── Stat Pills ── */
+/* ── Stat Pills (top/bottom country) ── */
 .stat-row {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
     margin-bottom: 20px;
 }
@@ -158,14 +210,13 @@ section[data-testid="stSidebar"] .stSlider label {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 12px 16px;
+    padding: 10px 16px;
     flex: 1;
-    min-width: 150px;
-    box-sizing: border-box;
+    min-width: 140px;
 }
 .stat-pill-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.stat-pill-value { font-family: 'Instrument Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
-.stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+.stat-pill-value { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* ── Chart Containers ── */
 .chart-box {
@@ -176,7 +227,7 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 20px;
 }
 .chart-title {
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Syne', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: var(--text);
@@ -186,6 +237,61 @@ section[data-testid="stSidebar"] .stSlider label {
     font-size: 12px;
     color: var(--muted);
     margin-bottom: 16px;
+}
+
+/* ── Insights Box ── */
+.insight-outer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 44px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.insight-outer::after {
+    content: '💡';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.04;
+    bottom: -10px;
+    right: 20px;
+}
+.insight-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent1);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+.insight-body {
+    font-size: 15px;
+    color: #C9D1D9;
+    line-height: 1.85;
+}
+.insight-body b { color: var(--accent2); }
+.insight-body .highlight { color: var(--accent1); font-weight: 600; }
+.ref-box {
+    margin-top: 28px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+}
+.ref-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+.ref-item {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
 }
 
 /* ── Divider ── */
@@ -208,7 +314,7 @@ section[data-testid="stSidebar"] .stSlider label {
 }
 .credits b { color: var(--accent2); }
 
-/* Sidebar info card */
+/* ── Sidebar info card ── */
 .sb-info {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -221,7 +327,7 @@ section[data-testid="stSidebar"] .stSlider label {
 }
 .sb-info b { color: var(--text); }
 
-/* Scrollbar styling */
+/* scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -229,7 +335,7 @@ section[data-testid="stSidebar"] .stSlider label {
 </style>
 """, unsafe_allow_html=True)
 
-# ── Plotly Theme Configuration ────────────────────────────────────────────────
+# ── Plotly theme ──────────────────────────────────────────────────────────────
 PLOT_BG    = "#161B22"
 PAPER_BG   = "#161B22"
 GRID_COLOR = "#21262D"
@@ -267,10 +373,10 @@ def load_data():
 
 df = load_data()
 
-# ── Sidebar Interface ─────────────────────────────────────────────────────────
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style='font-family:"Instrument Sans",sans-serif; font-size:20px; font-weight:800;
+    <div style='font-family:Syne,sans-serif; font-size:20px; font-weight:800;
                 color:#F78166; margin-bottom:4px;'>📚 SDG 4 Explorer</div>
     <div style='font-size:12px; color:#8B949E; margin-bottom:20px; line-height:1.6;'>
         Quality Education · Learning Poverty
@@ -330,18 +436,30 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── Filter Data Processing ────────────────────────────────────────────────────
+# ── Filter data ───────────────────────────────────────────────────────────────
 working_df = df.copy()
 if selected_countries:
     working_df = working_df[working_df["Country Name"].isin(selected_countries)]
 
 filtered_df = working_df[working_df["Year"] == selected_year].copy()
 
-# ── Top Banner Image ──────────────────────────────────────────────────────────
-st.image("banner.png", use_container_width=True)
-st.markdown("<br>", unsafe_allow_html=True)
+# ── Hero Header ───────────────────────────────────────────────────────────────
+country_scope = f"{len(selected_countries)} selected countries" if selected_countries else "75 countries"
+st.markdown(f"""
+<div class="hero">
+    <div class="hero-eyebrow">UN Sustainable Development Goal 4 · Quality Education</div>
+    <div class="hero-title">Drivers of <span>Learning Poverty</span><br>Across Nations</div>
+    <div class="hero-subtitle">
+        Examining how pupil-teacher ratios, teacher quality, government spending, and child health
+        outcomes influence the share of children unable to read proficiently by age 10.
+    </div>
+    <span class="hero-badge">📊 {selected_year}</span>
+    <span class="hero-badge">🌍 {country_scope}</span>
+    <span class="hero-badge">📅 2000–2023</span>
+</div>
+""", unsafe_allow_html=True)
 
-# ── KPI Execution Row ─────────────────────────────────────────────────────────
+# ── KPI Row ───────────────────────────────────────────────────────────────────
 if filtered_df.empty:
     st.warning("No data available for the selected filters. Please adjust your selection.")
     st.stop()
@@ -360,55 +478,46 @@ st.markdown(f"""
 <div class="section-title">Key Indicators — {selected_year}</div>
 """, unsafe_allow_html=True)
 
-# 4 Columns with Equalized Dynamic Fluid Sizing
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f"""
     <div class="kpi-card kpi-red">
-        <div>
-            <span class="kpi-icon">📖</span>
-            <div class="kpi-label">Avg. Learning Poverty</div>
-            <div class="kpi-value">{avg_lp:.1f}%</div>
-        </div>
+        <span class="kpi-icon">📖</span>
+        <div class="kpi-label">Avg. Learning Poverty</div>
+        <div class="kpi-value">{avg_lp:.1f}%</div>
         <div class="kpi-sub">Share of children below reading proficiency</div>
     </div>""", unsafe_allow_html=True)
 
 with c2:
     st.markdown(f"""
     <div class="kpi-card kpi-blue">
-        <div>
-            <span class="kpi-icon">🏫</span>
-            <div class="kpi-label">Avg. Pupils per Teacher</div>
-            <div class="kpi-value">{avg_ptr:.1f}</div>
-        </div>
-        <div class="kpi-sub">Average global pupil-to-teacher ratio limits</div>
+        <span class="kpi-icon">🏫</span>
+        <div class="kpi-label">Avg. Pupils per Teacher</div>
+        <div class="kpi-value">{avg_ptr:.1f}</div>
+        <div class="kpi-sub">Average pupil-to-teacher ratio</div>
     </div>""", unsafe_allow_html=True)
 
 with c3:
     st.markdown(f"""
     <div class="kpi-card kpi-green">
-        <div>
-            <span class="kpi-icon">🎓</span>
-            <div class="kpi-label">Avg. Trained Teachers</div>
-            <div class="kpi-value">{avg_tt:.1f}%</div>
-        </div>
-        <div class="kpi-sub">Teachers meeting national operating standards</div>
+        <span class="kpi-icon">🎓</span>
+        <div class="kpi-label">Avg. Trained Teachers</div>
+        <div class="kpi-value">{avg_tt:.1f}%</div>
+        <div class="kpi-sub">Teachers meeting national standards</div>
     </div>""", unsafe_allow_html=True)
 
 with c4:
     st.markdown(f"""
     <div class="kpi-card kpi-yellow">
-        <div>
-            <span class="kpi-icon">💰</span>
-            <div class="kpi-label">Avg. Gov. Expenditure</div>
-            <div class="kpi-value">{avg_ge:.1f}%</div>
-        </div>
-        <div class="kpi-sub">% of total government spending on education</div>
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-label">Avg. Gov. Expenditure</div>
+        <div class="kpi-value">{avg_ge:.1f}%</div>
+        <div class="kpi-sub">% of total govt. spending on education</div>
     </div>""", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Stat pills
+# Stat pills — best/worst
 n_countries = len(filtered_df)
 avg_oos = filtered_df["children_out_of_school"].mean()
 avg_u5  = filtered_df["u5_mortality"].mean()
@@ -484,6 +593,7 @@ with col_map:
         labels={"learning_poverty": "Learning Poverty (%)"},
     )
     
+    # Sequential updates to avoid duplicate keyword arguments
     fig_map.update_layout(**LAYOUT_BASE)
     fig_map.update_layout(
         margin=dict(l=0, r=0, t=0, b=0),
@@ -498,6 +608,14 @@ with col_map:
             showlakes=False,
             bgcolor=PLOT_BG,
             projection_type="natural earth",
+        ),
+        coloraxis_colorbar=dict(
+            title="LP (%)",
+            tickfont=dict(size=10, color=TEXT_COLOR),
+            title_font=dict(size=11, color=TEXT_COLOR),
+            bgcolor=PAPER_BG,
+            bordercolor="#30363D",
+            borderwidth=1,
         ),
         height=380,
     )
@@ -529,8 +647,8 @@ with col_bar:
     ))
     fig_bar.update_layout(**LAYOUT_BASE)
     fig_bar.update_layout(
-        xaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)", "range": [0, 115]},
-        yaxis={**AXIS_BASE, "title_text": "", "showgrid": False},
+        xaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)", range=[0, 115]),
+        yaxis=dict(**AXIS_BASE, title_text="", showgrid=False),
         height=380,
     )
     st.plotly_chart(fig_bar, use_container_width=True)
@@ -555,7 +673,7 @@ with col_trend:
     
     fig_trend = go.Figure()
     
-    # Background individual lines
+    # Background: individual countries (faint)
     countries_to_plot = selected_countries if selected_countries else all_countries[:25]
     for country in countries_to_plot[:20]:
         cdf = working_df[working_df["Country Name"] == country].sort_values("Year")
@@ -568,7 +686,7 @@ with col_trend:
                 hoverinfo="skip",
             ))
     
-    # Confidence background variance zone
+    # Confidence band
     fig_trend.add_trace(go.Scatter(
         x=pd.concat([trend_data["Year"], trend_data["Year"][::-1]]),
         y=pd.concat([trend_data["max"], trend_data["min"][::-1]]),
@@ -602,8 +720,8 @@ with col_trend:
     
     fig_trend.update_layout(**LAYOUT_BASE)
     fig_trend.update_layout(
-        xaxis={**AXIS_BASE, "title_text": "Year"},
-        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
+        xaxis=dict(**AXIS_BASE, title_text="Year"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         height=360,
     )
     st.plotly_chart(fig_trend, use_container_width=True)
@@ -641,8 +759,8 @@ with col_scatter:
     )
     fig_scatter.update_layout(**LAYOUT_BASE)
     fig_scatter.update_layout(
-        xaxis={**AXIS_BASE, "title_text": selected_driver_label},
-        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
+        xaxis=dict(**AXIS_BASE, title_text=selected_driver_label),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         coloraxis_showscale=False,
         height=360,
     )
@@ -672,19 +790,13 @@ with col_radar:
     top6    = filtered_df.nlargest(6, "learning_poverty")[radar_vars].mean()
     bottom6 = filtered_df.nsmallest(6, "learning_poverty")[radar_vars].mean()
     
-    # Normalization matrix scaling bounds
+    # Normalize 0-1
     df_norm = working_df[radar_vars]
     vmin, vmax = df_norm.min(), df_norm.max()
     top6_n    = (top6    - vmin) / (vmax - vmin)
     bottom6_n = (bottom6 - vmin) / (vmax - vmin)
 
     fig_radar = go.Figure()
-    
-    fill_colors = {
-        "#F78166": "rgba(247, 129, 102, 0.15)",
-        "#56D364": "rgba(86, 211, 100, 0.15)"
-    }
-    
     for vals, name, color in [
         (top6_n,    "High LP Countries", "#F78166"),
         (bottom6_n, "Low LP Countries",  "#56D364"),
@@ -697,7 +809,7 @@ with col_radar:
             fill="toself",
             name=name,
             line=dict(color=color, width=2),
-            fillcolor=fill_colors.get(color, "rgba(255, 255, 255, 0.15)"),
+            fillcolor=color.replace(")", ",0.15)").replace("rgb", "rgba") if "rgb" in color else f"{color}26",
             marker=dict(size=6, color=color),
         ))
 
@@ -722,8 +834,8 @@ with col_heat:
 
     corr_vars = ["learning_poverty","pupil_teacher_ratio","trained_teachers",
                  "gov_expenditure","children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
-    corr_labels = ["Learning\ Poverty","Pupil-Teacher\ Ratio","Trained\ Teachers",
-                   "Gov.\ Expenditure","Out of\ School","Below Min.\ Prof.","U5\ Mortality"]
+    corr_labels = ["Learning\nPoverty","Pupil-Teacher\nRatio","Trained\nTeachers",
+                   "Gov.\nExpenditure","Out of\nSchool","Below Min.\nProf.","U5\nMortality"]
     corr_matrix = working_df[corr_vars].corr().values
 
     fig_heat = go.Figure(go.Heatmap(
@@ -743,8 +855,9 @@ with col_heat:
     ))
     fig_heat.update_layout(**LAYOUT_BASE)
     fig_heat.update_layout(
-        xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False),
-        yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False, autorange="reversed"),
+        xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent"),
+        yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent", autorange="reversed"),
+        coloraxis_colorbar=dict(title="r", tickfont=dict(size=9, color=TEXT_COLOR)),
         height=380,
     )
     st.plotly_chart(fig_heat, use_container_width=True)
@@ -787,8 +900,8 @@ with col_multi:
 
     fig_multi.update_layout(**LAYOUT_BASE)
     fig_multi.update_layout(
-        xaxis={**AXIS_BASE, "title_text": "Year"},
-        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
+        xaxis=dict(**AXIS_BASE, title_text="Year"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         height=360,
         legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, font=dict(size=10)),
     )
@@ -804,119 +917,53 @@ with col_box:
         if y < 2005: return "2000–2004"
         elif y < 2010: return "2005–2009"
         elif y < 2015: return "2010–2014"
-        else: return "2015–2023"
+        elif y < 2020: return "2015–2019"
+        else:          return "2020–2023"
 
-    working_df_decade = working_df.copy()
-    working_df_decade["Decade"] = working_df_decade["Year"].apply(decade_label)
+    working_df["Decade"] = working_df["Year"].apply(decade_label)
+    decade_order = ["2000–2004","2005–2009","2010–2014","2015–2019","2020–2023"]
+    decade_colors = ["#BC8CFF","#79C0FF","#56D364","#E3B341","#F78166"]
 
-    fig_box = px.box(
-        working_df_decade,
-        x="Decade",
-        y="learning_poverty",
-        color="Decade",
-        category_orders={"Decade": ["2000–2004", "2005–2009", "2010–2014", "2015–2023"]},
-        template="plotly_dark",
-        color_discrete_sequence=PALETTE,
-    )
+    fig_box = go.Figure()
+    for dec, col in zip(decade_order, decade_colors):
+        df_dec = working_df[working_df["Decade"] == dec]
+        if not df_dec.empty:
+            fig_box.add_trace(go.Box(
+                y=df_dec["learning_poverty"],
+                name=dec,
+                marker_color=col,
+                boxpoints="outliers"
+            ))
+            
     fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
-        xaxis={**AXIS_BASE, "title_text": "Time Period"},
-        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
-        showlegend=False,
+        xaxis=dict(**AXIS_BASE, title_text="Time Period"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
         height=360,
+        showlegend=False
     )
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
-
-# ── STRATEGIC RECOMMENDATIONS & CALL TO ACTION ─────────────────────────────────
-st.markdown(f"""
-<div class="section-label">Policy Framework</div>
-<div class="section-title">Strategic Insights & Call to Action — {selected_year}</div>
-""", unsafe_allow_html=True)
-
-# Evaluation variables for real-time adjustments
-high_classroom_density = avg_ptr > 25.0
-low_funding = avg_ge < 15.0
-
-priority_tags = []
-if avg_lp > 50: priority_tags.append("<span style='color:var(--accent1); font-weight:700;'>CRITICAL LEARNING POVERTY CRISIS</span>")
-if high_classroom_density: priority_tags.append("<span style='color:var(--accent2); font-weight:700;'>TEACHER SUPPLY SHORTAGE</span>")
-if low_funding: priority_tags.append("<span style='color:var(--accent4); font-weight:700;'>FISCAL UNDERINVESTMENT</span>")
-
-priority_status = " | ".join(priority_tags) if priority_tags else "<span style='color:var(--accent3); font-weight:700;'>STABLE MAINTENANCE MODE</span>"
-
-st.markdown(f"""
-<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 30px;">
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
-        <div>
-            <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 18px; color: var(--text); font-weight: 700;">
-                🎯 SDG 4 Emergency Response Playbook
-            </h3>
-            <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--muted);">Data-driven structural interventions scaled for current selection profiles.</p>
-        </div>
-        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 0.05em;">
-            SYSTEM STATUS: {priority_status}
-        </div>
+# ── Insights Block ────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="insight-outer">
+    <div class="insight-heading">💡 Strategic Insights & Policy Implications</div>
+    <div class="insight-body">
+        1. <b>The Quality Imperative:</b> Merely increasing school enrollment rates is insufficient. The strong correlation between 
+        <span class="highlight">Pupils Below Minimum Proficiency</span> and Learning Poverty indicates that classroom 
+        instructional quality and effective pedagogical practice are the primary bottlenecks.<br><br>
+        2. <b>Teacher Resource Allocation:</b> The <span class="highlight">Pupil-Teacher Ratio</span> remains a critical operational 
+        metric. Unfavorable ratios severely limit individual student attention, compounding early reading deficiencies in foundational stages.<br><br>
+        3. <b>Socioeconomic Intersections:</b> The heavy historical interaction with indicators such as <span class="highlight">Under-5 Mortality</span> suggests 
+        that educational achievement rates are fundamentally tied to wider structural improvements in child health, nutrition, and institutional development.
     </div>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-        
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">📉</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                1. Remediate Foundational Literacy
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                With global learning poverty hovering at <b style="color:var(--accent1);">{avg_lp:.1f}%</b>, countries must pivot curricula toward "Teaching at the Right Level" (TaRL). Focus strictly on foundational reading and universal math blocks before age 10 to eliminate systemic downstream elimination patterns.
-            </p>
-        </div>
-
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">👩‍🏫</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                2. Optimize Instructional Capacity
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                Current metrics show an average density of <b style="color:var(--accent2);">{avg_ptr:.1f}</b> pupils per teacher. {"Action is required to aggressively recruit educators and expand structural training facilities to dilute high classroom crowding." if high_classroom_density else "Maintain this target balance while reinforcing specialized continuous professional development networks."}
-            </p>
-        </div>
-
-        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
-            <div style="font-size: 20px; margin-bottom: 10px;">💎</div>
-            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-                3. Safeguard Fiscal Allocations
-            </div>
-            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
-                Education allocations average <b style="color:var(--accent4);">{avg_ge:.1f}%</b> of public spending. Governments must structurally codify a minimum budget floor of 15-20% of public expenditure specifically ring-fenced for early-childhood infrastructure and rural teacher retention premiums.
-            </p>
-        </div>
-
-    </div>
-
-    <div style="margin-top: 24px; padding: 16px; background: rgba(247, 129, 102, 0.06); border: 1px dashed rgba(247, 129, 102, 0.3); border-radius: 12px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-        <div style="font-size: 24px;">📢</div>
-        <div style="flex: 1; min-width: 240px;">
-            <h4 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 14px; color: var(--accent1); font-weight: 700;">
-                The 2030 Countdown Action Directive
-            </h4>
-            <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text); line-height: 1.5;">
-                A simple 10% reduction in learning poverty yields significant lifelong macroeconomic productivity gains. Civil societies, ministries, and global donors must instantly unify reporting schemas to coordinate intervention deployments where numbers peak highest.
-            </p>
-        </div>
-        <div style="padding: 8px 16px; background: var(--accent1); color: var(--bg); font-weight: 700; font-size: 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">
-            Download Blueprint
-        </div>
-    </div>
-
 </div>
 """, unsafe_allow_html=True)
 
-# ── Credits Footer ────────────────────────────────────────────────────────────
+# ── Footer Credits ─────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    Dashboard created for <b>SDG 4 Tracking</b> · Data updated dynamically · System Engine Running Stable
+    Dashboard developed for <b>SDG 4 Monitoring</b> · Data sources: World Bank Education Statistics, UNESCO Institute for Statistics & UNICEF.
 </div>
 """, unsafe_allow_html=True)
