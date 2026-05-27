@@ -35,12 +35,10 @@ section[data-testid="stSidebar"] .stMultiSelect label,
 section[data-testid="stSidebar"] .stSlider label{font-family:'Instrument Sans',sans-serif!important;font-size:13px!important;font-weight:600!important;letter-spacing:.07em!important;text-transform:uppercase!important;color:var(--muted)!important;}
 .section-label{font-family:'Instrument Sans',sans-serif;font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
 .section-title{font-family:'Instrument Sans',sans-serif;font-size:24px;font-weight:700;color:var(--text);margin-bottom:20px;}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;align-items:end;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;}
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:500px){.kpi-grid{grid-template-columns:1fr;}}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s ease,transform .2s ease;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;}
-.kpi-card.kpi-small{height:155px;}
-.kpi-card.kpi-tall{height:225px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;transition:border-color .2s ease,transform .2s ease;box-sizing:border-box;min-height:175px;height:100%;display:flex;flex-direction:column;justify-content:space-between;}
 .kpi-card:hover{border-color:rgba(247,129,102,0.4);transform:translateY(-2px);}
 .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
 .kpi-red::before{background:var(--grad1);} .kpi-blue::before{background:var(--grad2);}
@@ -239,10 +237,10 @@ st.markdown(f"""
 
 kpi_html = (
 f'<div class="kpi-grid">'
-f'<div class="kpi-card kpi-small kpi-red"><div><span class="kpi-icon">📖</span><div class="kpi-label">Avg. Learning Poverty</div><div class="kpi-value">{avg_lp:.1f}%</div></div><div class="kpi-sub">Share of children below reading proficiency</div></div>'
-f'<div class="kpi-card kpi-tall kpi-blue"><div><span class="kpi-icon">🏫</span><div class="kpi-label">Avg. Pupils per Teacher</div><div class="kpi-value">{avg_ptr:.1f}</div></div><div class="kpi-sub">Average pupil-to-teacher ratio, primary level. High ratios signal under-resourced classrooms.</div></div>'
-f'<div class="kpi-card kpi-small kpi-green"><div><span class="kpi-icon">🎓</span><div class="kpi-label">Avg. Trained Teachers</div><div class="kpi-value">{avg_tt:.1f}%</div></div><div class="kpi-sub">Teachers meeting national training standards</div></div>'
-f'<div class="kpi-card kpi-tall kpi-yellow"><div><span class="kpi-icon">💰</span><div class="kpi-label">Avg. Gov. Expenditure</div><div class="kpi-value">{avg_ge:.1f}%</div></div><div class="kpi-sub">Govt. expenditure per student as % of GDP per capita. Low values indicate chronic underfunding of education systems.</div></div>'
+f'<div class="kpi-card kpi-red"><div><span class="kpi-icon">📖</span><div class="kpi-label">Avg. Learning Poverty</div><div class="kpi-value">{avg_lp:.1f}%</div></div><div class="kpi-sub">Share of children below reading proficiency</div></div>'
+f'<div class="kpi-card kpi-blue"><div><span class="kpi-icon">🏫</span><div class="kpi-label">Avg. Pupils per Teacher</div><div class="kpi-value">{avg_ptr:.1f}</div></div><div class="kpi-sub">Average pupil-to-teacher ratio, primary</div></div>'
+f'<div class="kpi-card kpi-green"><div><span class="kpi-icon">🎓</span><div class="kpi-label">Avg. Trained Teachers</div><div class="kpi-value">{avg_tt:.1f}%</div></div><div class="kpi-sub">Teachers meeting national training standards</div></div>'
+f'<div class="kpi-card kpi-yellow"><div><span class="kpi-icon">💰</span><div class="kpi-label">Avg. Gov. Expenditure</div><div class="kpi-value">{avg_ge:.1f}%</div></div><div class="kpi-sub">Govt. expenditure per student (% GDP per capita)</div></div>'
 f'</div>'
 )
 st.markdown(kpi_html, unsafe_allow_html=True)
