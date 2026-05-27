@@ -1,0 +1,6 @@
+Test,Statistic,P-value / Threshold,Decision,Violation Status
+Residual Normality (Shapiro-Wilk),0.963,0.000,Reject H0: Residuals are NOT normally distributed.,Violated
+Residual Normality (Jarque-Bera),17.696,0.000,Reject H0: Residuals are NOT normally distributed.,Violated
+Homoscedasticity (Breusch-Pagan LM),39.290,0.000,Reject H0: Heteroscedasticity IS present.,Violated
+Autocorrelation (Durbin-Watson),0.434,N/A,Strong Positive Autocorrelation,Violated
+Influential Outliers (Cook's D > Threshold),0.041 (Max Cook's D),0.011 (Threshold),25 points identified (Cook's D > Threshold),Violated
