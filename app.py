@@ -665,133 +665,41 @@ else:
     driver_msg = "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."
 
 # ── Panel 1: The Scale of the Crisis ────
-st.markdown(f"""
-<div class="insight-panel">
-    <div class="insight-headline" style="color:{insight_color};">
-        {avg_lp:.1f}% of children cannot read a simple text by age 10.
-    </div>
-    <div class="insight-subline">
-        In {selected_year}, across {n_countries} countries in this dataset, learning poverty sits at an average of <b style="color:{insight_color}">{avg_lp:.1f}%</b> —
-        a gap of <b style="color:#F78166">{gap_to_target:.1f} percentage points</b> from the SDG 4 target of ≤10%.
-        At this pace, the goal will not be met by 2030.
-    </div>
-
-    <div style="margin-bottom:14px;">
-        <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">
-            Distance from SDG 4 Target (≤10%) — Current avg: {avg_lp:.1f}%
-        </div>
-        <div class="urgency-bar">
-            <div class="urgency-fill red" style="width:{urgency_pct}%;"></div>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);">
-            <span>0%</span><span style="color:#56D364;">SDG Target: 10%</span><span>100%</span>
-        </div>
-    </div>
-
-    <div class="insight-grid">
-        <div class="insight-card red">
-            <div class="insight-card-title">🚨 Critical Cases</div>
-            <div class="insight-card-stat">{critical_count} countries</div>
-            <div class="insight-card-body">
-                <b>{critical_pct:.0f}% of countries</b> in this view have learning poverty above 50% —
-                meaning more than half of their children will enter adulthood unable to read proficiently.
-                This is not a statistic. This is a generation.
-            </div>
-        </div>
-        <div class="insight-card yellow">
-            <div class="insight-card-title">📉 Trend Signal</div>
-            <div class="insight-card-stat">{trend_label}</div>
-            <div class="insight-card-body">
-                The global average is <b>{trend_direction}</b> since 2010.
-                {trend_msg}
-            </div>
-        </div>
-        <div class="insight-card blue">
-            <div class="insight-card-title">🔗 Driver Signal</div>
-            <div class="insight-card-stat">r = {corr_value:.2f}</div>
-            <div class="insight-card-body">
-                <b>{selected_driver_label}</b> shows a <b>{driver_relation} correlation</b> with learning poverty.
-                {driver_msg}
-            </div>
-        </div>
-        <div class="insight-card green">
-            <div class="insight-card-title">✅ What Works</div>
-            <div class="insight-card-stat">{best} ({best_v:.1f}%)</div>
-            <div class="insight-card-body">
-                <b>{best}</b> achieves the lowest learning poverty in this view at <b>{best_v:.1f}%</b>.
-                Compare its trained teacher rate and expenditure profile against the worst performers —
-                the gap is a policy choice, not a destiny.
-            </div>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+panel1_html = (
+'<div class="insight-panel">'
+f'<div class="insight-headline" style="color:{insight_color};">{avg_lp:.1f}% of children cannot read a simple text by age 10.</div>'
+f'<div class="insight-subline">In {selected_year}, across {n_countries} countries in this dataset, learning poverty sits at an average of <b style="color:{insight_color}">{avg_lp:.1f}%</b> — a gap of <b style="color:#F78166">{gap_to_target:.1f} percentage points</b> from the SDG 4 target of ≤10%. At this pace, the goal will not be met by 2030.</div>'
+f'<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Distance from SDG 4 Target (≤10%) — Current avg: {avg_lp:.1f}%</div>'
+f'<div class="urgency-bar"><div class="urgency-fill red" style="width:{urgency_pct:.1f}%;"></div></div>'
+'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);"><span>0%</span><span style="color:#56D364;">SDG Target: 10%</span><span>100%</span></div></div>'
+'<div class="insight-grid">'
+f'<div class="insight-card red"><div class="insight-card-title">🚨 Critical Cases</div><div class="insight-card-stat">{critical_count} countries</div><div class="insight-card-body"><b>{critical_pct:.0f}% of countries</b> in this view have learning poverty above 50% — meaning more than half of their children will enter adulthood unable to read proficiently. This is not a statistic. This is a generation.</div></div>'
+f'<div class="insight-card yellow"><div class="insight-card-title">📉 Trend Signal</div><div class="insight-card-stat">{trend_label}</div><div class="insight-card-body">The global average is <b>{trend_direction}</b> since 2010. {trend_msg}</div></div>'
+f'<div class="insight-card blue"><div class="insight-card-title">🔗 Driver Signal</div><div class="insight-card-stat">r = {corr_value:.2f}</div><div class="insight-card-body"><b>{selected_driver_label}</b> shows a <b>{driver_relation} correlation</b> with learning poverty. {driver_msg}</div></div>'
+f'<div class="insight-card green"><div class="insight-card-title">✅ What Works</div><div class="insight-card-stat">{best} ({best_v:.1f}%)</div><div class="insight-card-body"><b>{best}</b> achieves the lowest learning poverty in this view at <b>{best_v:.1f}%</b>. Compare its trained teacher rate and expenditure profile against the worst performers — the gap is a policy choice, not a destiny.</div></div>'
+'</div>'
+'</div>'
+)
+st.markdown(panel1_html, unsafe_allow_html=True)
 
 # ── Panel 2: What Must Be Done ────
-st.markdown(f"""
-<div class="insight-panel">
-    <div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">
-        🎯 From Evidence to Action — What Policymakers Must Prioritize
-    </div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">
-        The Huber regression model identifies the levers with the strongest statistical signal.
-        The following actions are ranked by model weight and policy feasibility.
-    </div>
-
-    <div class="action-row">
-        <div class="action-item">
-            <div class="action-icon">🧑‍🏫</div>
-            <div class="action-text">
-                <b>Train every teacher, not just hire more</b>
-                Average trained teacher coverage is <b>{avg_tt:.1f}%</b> — a gap of
-                <b>{tt_gap:.1f} pp</b> from the 80% benchmark.
-                Untrained teachers are the single largest model predictor of high LP.
-                Pre-service and in-service training programs must be mandatory, funded, and monitored.
-            </div>
-        </div>
-        <div class="action-item">
-            <div class="action-icon">💸</div>
-            <div class="action-text">
-                <b>Spend smarter, not just more</b>
-                Average gov. expenditure is <b>{avg_ge:.1f}%</b> of GDP per capita.
-                Countries above 20% with poor outcomes are mis-allocating funds.
-                Redirect budgets toward foundational literacy programs in grades 1–3,
-                where intervention has the highest ROI.
-            </div>
-        </div>
-        <div class="action-item">
-            <div class="action-icon">🏥</div>
-            <div class="action-text">
-                <b>Address health as an education crisis</b>
-                U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is a strong model predictor.
-                Children weakened by preventable disease cannot learn effectively.
-                Joint health-education budgeting in high-LP countries is not optional — it is necessary.
-            </div>
-        </div>
-        <div class="action-item">
-            <div class="action-icon">📊</div>
-            <div class="action-text">
-                <b>Close the data gap — what isn't measured isn't fixed</b>
-                Multiple countries show missing LP data for recent years.
-                Without annual, standardized assessments, governments cannot course-correct.
-                Invest in national learning assessments aligned to PIRLS/EGRA standards.
-            </div>
-        </div>
-    </div>
-
-    <div style="margin-top:22px;padding:16px;background:rgba(247,129,102,0.07);border-radius:10px;border:1px solid rgba(247,129,102,0.2);">
-        <div style="font-size:13px;font-weight:700;color:#F78166;margin-bottom:6px;">⏰ The 2030 Clock Is Running</div>
-        <div style="font-size:12.5px;color:var(--muted);line-height:1.7;">
-            SDG 4 set a 2030 deadline to ensure all children can read by age 10.
-            With <b style="color:var(--text)">fewer than 5 years remaining</b>, the window for course-correction is closing fast.
-            A child starting primary school today will be 10 years old in 2030.
-            The decisions made by governments <i>this year</i> will determine whether that child
-            can read — or becomes part of the next generation's learning poverty statistic.
-            <b style="color:#F78166">Data without action is just a number. Act on what you see here.</b>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
+panel2_html = (
+'<div class="insight-panel">'
+'<div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">🎯 From Evidence to Action — What Policymakers Must Prioritize</div>'
+'<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">The Huber regression model identifies the levers with the strongest statistical signal. The following actions are ranked by model weight and policy feasibility.</div>'
+'<div class="action-row">'
+f'<div class="action-item"><div class="action-icon">🧑‍🏫</div><div class="action-text"><b>Train every teacher, not just hire more</b> Average trained teacher coverage is <b>{avg_tt:.1f}%</b> — a gap of <b>{tt_gap:.1f} pp</b> from the 80% benchmark. Untrained teachers are the single largest model predictor of high LP. Pre-service and in-service training programs must be mandatory, funded, and monitored.</div></div>'
+f'<div class="action-item"><div class="action-icon">💸</div><div class="action-text"><b>Spend smarter, not just more</b> Average gov. expenditure is <b>{avg_ge:.1f}%</b> of GDP per capita. Countries above 20% with poor outcomes are mis-allocating funds. Redirect budgets toward foundational literacy programs in grades 1–3, where intervention has the highest ROI.</div></div>'
+f'<div class="action-item"><div class="action-icon">🏥</div><div class="action-text"><b>Address health as an education crisis</b> U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is a strong model predictor. Children weakened by preventable disease cannot learn effectively. Joint health-education budgeting in high-LP countries is not optional — it is necessary.</div></div>'
+'<div class="action-item"><div class="action-icon">📊</div><div class="action-text"><b>Close the data gap — what is not measured is not fixed</b> Multiple countries show missing LP data for recent years. Without annual, standardized assessments, governments cannot course-correct. Invest in national learning assessments aligned to PIRLS/EGRA standards.</div></div>'
+'</div>'
+'<div style="margin-top:22px;padding:16px;background:rgba(247,129,102,0.07);border-radius:10px;border:1px solid rgba(247,129,102,0.2);">'
+'<div style="font-size:13px;font-weight:700;color:#F78166;margin-bottom:6px;">⏰ The 2030 Clock Is Running</div>'
+'<div style="font-size:12.5px;color:var(--muted);line-height:1.7;">SDG 4 set a 2030 deadline to ensure all children can read by age 10. With <b style="color:var(--text)">fewer than 5 years remaining</b>, the window for course-correction is closing fast. A child starting primary school today will be 10 years old in 2030. The decisions made by governments this year will determine whether that child can read — or becomes part of the next generation\'s learning poverty statistic. <b style="color:#F78166">Data without action is just a number. Act on what you see here.</b></div>'
+'</div>'
+'</div>'
+)
+st.markdown(panel2_html, unsafe_allow_html=True)
 
 # ── Credits Footer ────────────────────────────────────────────────────────────
 st.markdown("""
