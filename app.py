@@ -93,10 +93,6 @@ AXIS_BASE = dict(
 )
 
 # ── Load Data ─────────────────────────────────────────────────────────────────
-# FIX 1: Load cleaned_dataset.csv — the actual output from the EDA notebook
-# Exact columns: Country Name, Country Code, Year, learning_poverty,
-#   pupil_teacher_ratio, trained_teachers, gov_expenditure,
-#   children_out_of_school, pupils_below_min_proficiency, u5_mortality
 @st.cache_data
 def load_data():
     df = pd.read_csv("cleaned_dataset.csv")
@@ -113,15 +109,12 @@ with st.sidebar:
     """, unsafe_allow_html=True)
     st.markdown("---")
 
-    # FIX 2: Year column is 'Year' (capital Y), range 2000–2023, NO 2021
     year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
-    # Default to 2019 (highest data coverage year = 30 countries)
     selected_year = st.slider("Select Year", year_min, year_max, 2019,
                               help="Filter all charts and KPIs to this year")
 
     st.markdown("---")
 
-    # FIX 3: Country column is 'Country Name' (with space) — matches dataset exactly
     all_countries = sorted(df["Country Name"].unique())
     selected_countries = st.multiselect(
         "Filter Countries", options=all_countries, default=[],
@@ -131,7 +124,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # FIX 4: Driver column names match cleaned_dataset.csv exactly
     driver_options = {
         "Pupil-Teacher Ratio"               : "pupil_teacher_ratio",
         "Trained Teachers (%)"              : "trained_teachers",
@@ -166,20 +158,23 @@ working_df = df.copy()
 if selected_countries:
     working_df = working_df[working_df["Country Name"].isin(selected_countries)]
 
-# FIX 5: Year column is 'Year' not 'year'
 filtered_df = working_df[working_df["Year"] == selected_year].copy()
 
 # ── Header Banner ─────────────────────────────────────────────────────────────
-st.markdown(f"""
-<div style='background:var(--surface);border:1px solid var(--border);padding:26px;border-radius:16px;margin-bottom:10px;'>
-    <span style='font-size:10px;font-weight:800;color:var(--accent1);letter-spacing:.2em;'>UN SUSTAINABLE DEVELOPMENT GOAL 4</span>
-    <h1 style='margin:4px 0 0 0;color:var(--text);font-weight:800;font-size:30px;'>Drivers of Learning Poverty</h1>
-    <div style='font-size:13px;color:#8B949E;margin-top:6px;'>
-        Huber Robust Regression Analysis · 75 Countries · 2000–2023 ·
-        Response: <b style='color:#F78166'>learning_poverty</b>
+# Injects custom-designed banner or applies code fallback if asset is missing
+if os.path.exists("banner.png"):
+    st.image("banner.png", use_container_width=True)
+else:
+    st.markdown(f"""
+    <div style='background:var(--surface);border:1px solid var(--border);padding:26px;border-radius:16px;margin-bottom:10px;'>
+        <span style='font-size:10px;font-weight:800;color:var(--accent1);letter-spacing:.2em;'>UN SUSTAINABLE DEVELOPMENT GOAL 4</span>
+        <h1 style='margin:4px 0 0 0;color:var(--text);font-weight:800;font-size:30px;'>Drivers of Learning Poverty</h1>
+        <div style='font-size:13px;color:#8B949E;margin-top:6px;'>
+            Huber Robust Regression Analysis · 75 Countries · 2000–2023 ·
+            Response: <b style='color:#F78166'>learning_poverty</b>
+        </div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Guard: empty filter ───────────────────────────────────────────────────────
@@ -190,7 +185,6 @@ if filtered_df.empty:
     st.stop()
 
 # ── KPI Row ───────────────────────────────────────────────────────────────────
-# FIX 6: All column references use exact names from cleaned_dataset.csv
 avg_lp   = filtered_df["learning_poverty"].mean()
 avg_ptr  = filtered_df["pupil_teacher_ratio"].mean()
 avg_tt   = filtered_df["trained_teachers"].mean()
@@ -218,7 +212,6 @@ with c4:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Stat Pills ─────────────────────────────────────────────────────────────────
-# FIX 7: Use exact column names — children_out_of_school, u5_mortality, pupils_below_min_proficiency
 n_countries = len(filtered_df)
 avg_oos = filtered_df["children_out_of_school"].mean()
 avg_u5  = filtered_df["u5_mortality"].mean()
@@ -267,7 +260,6 @@ st.markdown(f"""
 <div class="section-title">Learning Poverty at a Glance — {selected_year}</div>
 """, unsafe_allow_html=True)
 
-# FIX 8: Add year slider specifically for the choropleth
 choro_year = st.slider(
     "📅 Choropleth Year", year_min, year_max, selected_year,
     key="choro_year",
@@ -287,7 +279,6 @@ with col_map:
     else:
         fig_map = px.choropleth(
             df_choro,
-            # FIX 9: locations uses 'Country Code' (ISO3) — correct for choropleth
             locations="Country Code",
             color="learning_poverty",
             hover_name="Country Name",
@@ -330,7 +321,7 @@ with col_bar:
         ]
         fig_bar_chart = go.Figure(go.Bar(
             x=top15["learning_poverty"],
-            y=top15["Country Name"],  # FIX 10: 'Country Name' not 'country'
+            y=top15["Country Name"],  
             orientation="h",
             marker_color=colors_bar,
             text=[f"{v:.1f}%" for v in top15["learning_poverty"]],
@@ -362,13 +353,11 @@ with col_trend:
     st.markdown('<div class="chart-title">📈 Learning Poverty Trend Over Time</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">Global average trend with individual country lines in the background.</div>', unsafe_allow_html=True)
 
-    # FIX 11: Use 'Year' (capital Y) for groupby
     trend_data = working_df.groupby("Year")["learning_poverty"].agg(["mean","min","max"]).reset_index()
     fig_trend  = go.Figure()
 
     countries_to_plot = selected_countries if selected_countries else all_countries[:25]
     for country in countries_to_plot[:20]:
-        # FIX 12: Filter on 'Country Name' with capital N
         cdf = working_df[working_df["Country Name"] == country].sort_values("Year")
         if len(cdf) >= 3:
             fig_trend.add_trace(go.Scatter(
@@ -415,7 +404,7 @@ with col_scatter:
                 x=selected_driver,
                 y="learning_poverty",
                 color="learning_poverty",
-                hover_name="Country Name",   # FIX 13: 'Country Name'
+                hover_name="Country Name",   
                 hover_data={selected_driver: ":.2f", "learning_poverty": ":.1f", "Country Code": False},
                 color_continuous_scale=[[0,"#56D364"],[0.5,"#E3B341"],[1,"#F78166"]],
                 range_color=[0, 100],
@@ -454,7 +443,6 @@ with col_radar:
     st.markdown('<div class="chart-title">🕸️ Driver Radar — Top 6 vs Bottom 6 Countries</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">Normalized driver profiles of highest vs lowest LP countries.</div>', unsafe_allow_html=True)
 
-    # FIX 14: radar_vars use EXACT column names from cleaned_dataset.csv
     radar_vars   = ["pupil_teacher_ratio","trained_teachers","gov_expenditure",
                     "children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
     radar_labels = ["Pupil-Teacher\nRatio","Trained\nTeachers","Gov.\nExpenditure",
@@ -503,7 +491,6 @@ with col_heat:
     st.markdown('<div class="chart-title">🔥 Correlation Heatmap — All Variables</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">Spearman correlation. Regression uses: pupil_teacher_ratio, trained_teachers, gov_expenditure, u5_mortality.</div>', unsafe_allow_html=True)
 
-    # FIX 15: corr_vars match EXACT column names
     corr_vars   = ["learning_poverty","pupil_teacher_ratio","trained_teachers",
                    "gov_expenditure","children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
     corr_labels = ["Learning\nPoverty","Pupil-Teacher\nRatio","Trained\nTeachers",
@@ -544,13 +531,11 @@ with col_multi:
     st.markdown('<div class="chart-title">📉 Country-Level Learning Poverty Trends</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">Select countries in the sidebar to compare trajectories.</div>', unsafe_allow_html=True)
 
-    # FIX 16: Default countries from actual cleaned_dataset.csv country list
     default_countries = [
         "India","Nigeria","Chad","Niger","Mali","Morocco","Colombia",
         "Brazil","Korea, Rep.","Norway","Germany","United States"
     ]
     plot_countries = selected_countries if selected_countries else default_countries
-    # FIX 17: Filter against actual 'Country Name' column
     plot_countries = [c for c in plot_countries if c in df["Country Name"].values][:12]
 
     fig_multi = go.Figure()
@@ -584,7 +569,6 @@ with col_box:
         elif y < 2015: return "2010–2014"
         else:          return "2015–2023"
 
-    # FIX 18: Use 'Year' column (capital Y)
     wdf_decade = working_df.copy()
     wdf_decade["Period"] = wdf_decade["Year"].apply(decade_label)
 
@@ -612,72 +596,35 @@ st.markdown(f"""
 <div class="section-title">Strategic Findings & Recommended Actions — {selected_year}</div>
 """, unsafe_allow_html=True)
 
-# FIX 19: corr uses correct column names
 corr_value       = working_df[["learning_poverty", selected_driver]].corr(method='spearman').iloc[0,1]
 driver_relation  = "positive" if corr_value > 0 else "negative"
 insight_color    = "#F78166" if avg_lp > 50 else "#E3B341" if avg_lp > 30 else "#56D364"
 
 st.markdown(f"""
 <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:25px;">
-<div style="font-size:15px;font-weight:700;color:{insight_color};margin-bottom:18px;">📌 Key Analytical Insights</div>
-<ul style="color:var(--text);font-size:13px;line-height:1.9;padding-left:20px;">
-<li>Average learning poverty for the filtered dataset is
-<b style="color:var(--accent1);">{avg_lp:.1f}%</b> —
-a substantial proportion of children remain below foundational reading proficiency.</li>
-
-<li><b>{worst}</b> records the highest learning poverty (<b>{worst_v:.1f}%</b>), while
-<b>{best}</b> shows the strongest outcome (<b>{best_v:.1f}%</b>).
-This gap underscores major inequalities in education systems.</li>
-
-<li>The driver <b>{selected_driver_label}</b> shows a <b>{driver_relation} relationship</b>
-with learning poverty (Spearman r = {corr_value:.2f}),
-confirming its role as a structural determinant of reading outcomes.</li>
-
-<li>Huber Robust Regression (EDA notebook) identified
-<b>trained_teachers</b> and <b>gov_expenditure</b> as statistically significant
-negative predictors, and <b>u5_mortality</b> as the most impactful positive predictor
-(strongest coefficient) of learning poverty.</li>
-
-<li>Current averages: <b>{avg_ptr:.1f}</b> pupils/teacher ·
-<b>{avg_tt:.1f}%</b> trained teachers ·
-<b>{avg_ge:.1f}%</b> govt. education spending.</li>
-</ul>
-
-<hr style="border:0.5px solid var(--border);margin:22px 0;">
-
-<div style="font-size:15px;font-weight:700;color:var(--accent2);margin-bottom:18px;">🚨 Recommended Actions</div>
-<ul style="color:var(--text);font-size:13px;line-height:1.9;padding-left:20px;">
-<li>Prioritize <b>foundational literacy recovery</b> in countries exceeding 50% LP,
-with early-grade intervention as an immediate national priority.</li>
-<li>Increase <b>teacher training rates</b> — the regression confirms trained_teachers
-significantly decreases LP. Countries below 80% trained should set 95%+ targets.</li>
-<li>Protect and grow <b>per-student education expenditure</b> (gov_expenditure),
-particularly in Sub-Saharan Africa and South Asia where spending is lowest.</li>
-<li>Address <b>child health deprivation</b> (u5_mortality) in tandem with education —
-the Huber model shows it as the strongest single predictor of learning poverty.</li>
-<li>Establish <b>continuous SDG 4 monitoring frameworks</b> aligned with WB/UNESCO
-indicators to track progress toward 2030 targets.</li>
-</ul>
-
-<div style="margin-top:22px;padding:16px;background:rgba(121,192,255,0.08);border-left:4px solid var(--accent2);border-radius:10px;">
-<b style="color:var(--accent2);">Model Note:</b>
-Findings are based on Huber Robust Regression fitted on
-<code>cleaned_dataset.csv</code> (75 countries, 2000–2023). Predictors:
-<code>pupil_teacher_ratio</code>, <code>trained_teachers</code>,
-<code>gov_expenditure</code>, <code>u5_mortality</code>.
-OLS assumptions were violated (non-normal residuals, heteroscedasticity,
-influential outliers) — Huber regression was selected automatically by the diagnostic engine.
-</div>
+    <div style="font-size:15px;font-weight:700;color:{insight_color};margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        🎯 System Diagnosis Summary
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px; font-size:13px; line-height:1.6;">
+        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
+            <b style="color:var(--accent1)">Workforce Saturation</b><br>
+            Current selection patterns exhibit an average pupil-to-teacher ratio density of <b>{avg_ptr:.1f}</b>, requiring strategic workforce realignments.
+        </div>
+        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
+            <b style="color:var(--accent2)">Driver Correlation</b><br>
+            The selected metric <b>{selected_driver_label}</b> correlates with a <b>{driver_relation}</b> directional factor of <b>{corr_value:.2f}</b> against global literacy benchmarks.
+        </div>
+        <div style="background:var(--surface2); padding:16px; border-radius:10px; border:1px solid var(--border);">
+            <b style="color:var(--accent4)">Fiscal Allocations</b><br>
+            Public spending profiles hover near <b>{avg_ge:.1f}%</b> of total state budgets, validating a continuous demand for protected educational capital pipelines.
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Footer ────────────────────────────────────────────────────────────────────
+# ── Credits Footer ────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    <b>Data:</b> cleaned_dataset.csv (75 countries · 2000–2023 · no 2021) ·
-    World Bank WDI | UNESCO | UNICEF<br>
-    <b>Model:</b> Huber Robust Regression (statsmodels RLM) ·
-    Response: learning_poverty ·
-    Predictors: pupil_teacher_ratio · trained_teachers · gov_expenditure · u5_mortality
+    Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational
 </div>
 """, unsafe_allow_html=True)
