@@ -1,888 +1,972 @@
-"""
-╔══════════════════════════════════════════════════════════════════════╗
-║   LEARNING POVERTY DASHBOARD — SDG 4: Quality Education             ║
-║   What drives the share of children who cannot read by end          ║
-║   of primary school?                                                ║
-║                                                                      ║
-║   Model: Robust Regression (Huber M-estimator / IRLS)               ║
-║   Data:  World Bank Open Data, 75 countries, 2000–2023              ║
-╚══════════════════════════════════════════════════════════════════════╝
-"""
-
-import json
-import numpy as np
+import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import streamlit as st
 
-# ─── PAGE CONFIG ────────────────────────────────────────────────────
+# ── Page Config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="Learning Poverty | SDG 4",
+    page_title="Learning Poverty Dashboard | SDG 4",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded"
 )
 
-# ─── CUSTOM CSS ─────────────────────────────────────────────────────
+# ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-  /* Global */
-  html, body, [class*="css"] { font-family: 'Inter', 'Segoe UI', sans-serif; }
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap');
 
-  /* Hide default streamlit header decoration */
-  #MainMenu { visibility: hidden; }
-  footer { visibility: hidden; }
-  header { visibility: hidden; }
+/* ── Root Variables ── */
+:root {
+    --bg:        #0D1117;
+    --surface:   #161B22;
+    --surface2:  #1C2333;
+    --border:    #30363D;
+    --accent1:   #F78166;
+    --accent2:   #79C0FF;
+    --accent3:   #56D364;
+    --accent4:   #E3B341;
+    --text:      #E6EDF3;
+    --muted:     #8B949E;
+    --grad1: linear-gradient(135deg, #F78166 0%, #FF9580 100%);
+    --grad2: linear-gradient(135deg, #79C0FF 0%, #58A6FF 100%);
+    --grad3: linear-gradient(135deg, #56D364 0%, #3FB950 100%);
+    --grad4: linear-gradient(135deg, #E3B341 0%, #D29922 100%);
+}
 
-  /* Hero banner */
-  .hero {
-    background: linear-gradient(135deg, #0a3d2e 0%, #1a6b4a 50%, #2d9e6b 100%);
+/* ── Base ── */
+html, body, [class*="css"] {
+    font-family: 'Instrument Sans', sans-serif;
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+.main .block-container {
+    padding: 1.5rem 2rem 3rem 2rem;
+    max-width: 1400px;
+}
+
+/* ── Sidebar ── */
+section[data-testid="stSidebar"] {
+    background: var(--surface) !important;
+    border-right: 1px solid var(--border) !important;
+}
+section[data-testid="stSidebar"] * { color: var(--text) !important; }
+section[data-testid="stSidebar"] .stSelectbox label,
+section[data-testid="stSidebar"] .stMultiSelect label,
+section[data-testid="stSidebar"] .stSlider label {
+    font-family: 'Instrument Sans', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.07em !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+}
+
+/* ── Hero Header ── */
+.hero {
+    background: linear-gradient(135deg, #0D1117 0%, #1a1f2e 50%, #0D1117 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 56px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(247,129,102,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(121,192,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero-eyebrow {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 12px;
+}
+.hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 4vw, 54px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+.hero-title span { color: var(--accent1); }
+.hero-subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 700px;
+    line-height: 1.7;
+}
+.hero-badge {
+    display: inline-block;
+    background: rgba(247,129,102,0.15);
+    border: 1px solid rgba(247,129,102,0.3);
+    color: var(--accent1);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-right: 8px;
+    margin-top: 20px;
+}
+
+/* ── Section Labels ── */
+.section-label {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+}
+
+/* ── KPI Cards ── */
+.kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 36px 40px 28px;
-    margin-bottom: 24px;
-    color: white;
-  }
-  .hero h1 {
-    font-size: 2.2rem; font-weight: 800;
-    margin: 0 0 8px; color: white; letter-spacing: -0.5px;
-  }
-  .hero .sub {
-    font-size: 1.05rem; opacity: 0.85; margin: 0 0 18px;
-  }
-  .hero .badges { display: flex; gap: 10px; flex-wrap: wrap; }
-  .badge {
-    background: rgba(255,255,255,0.18);
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 20px; padding: 4px 14px;
-    font-size: 0.78rem; font-weight: 600; color: white;
-  }
+    padding: 24px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.kpi-card:hover { border-color: rgba(247,129,102,0.4); transform: translateY(-2px); }
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+}
+.kpi-red::before   { background: var(--grad1); }
+.kpi-blue::before  { background: var(--grad2); }
+.kpi-green::before { background: var(--grad3); }
+.kpi-yellow::before{ background: var(--grad4); }
 
-  /* KPI cards */
-  .kpi-row { display: flex; gap: 14px; margin-bottom: 20px; flex-wrap: wrap; }
-  .kpi {
-    flex: 1; min-width: 140px;
-    background: white;
-    border: 1px solid #e8ecf0;
-    border-radius: 14px;
-    padding: 18px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.05);
-  }
-  .kpi-label {
-    font-size: 0.72rem; font-weight: 700; color: #6b7280;
-    text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;
-  }
-  .kpi-val { font-size: 2rem; font-weight: 800; line-height: 1; }
-  .kpi-sub { font-size: 0.72rem; color: #9ca3af; margin-top: 4px; }
+.kpi-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+}
+.kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+.kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+.kpi-red .kpi-value   { color: var(--accent1); }
+.kpi-blue .kpi-value  { color: var(--accent2); }
+.kpi-green .kpi-value { color: var(--accent3); }
+.kpi-yellow .kpi-value{ color: var(--accent4); }
+.kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+}
 
-  /* Section headers */
-  .section-header {
-    font-size: 0.7rem; font-weight: 700; color: #6b7280;
-    text-transform: uppercase; letter-spacing: 1.2px;
-    margin: 0 0 10px; border-bottom: 2px solid #f0f4f8; padding-bottom: 6px;
-  }
+/* ── Stat Pills (top/bottom country) ── */
+.stat-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 140px;
+}
+.stat-pill-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.stat-pill-value { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-  /* Insight box */
-  .insight {
-    background: #f0fdf4;
-    border-left: 4px solid #1a6b4a;
-    border-radius: 0 10px 10px 0;
-    padding: 14px 18px;
-    font-size: 0.87rem;
-    color: #1a3a2e;
-    line-height: 1.65;
-    margin-top: 12px;
-  }
-  .insight strong { color: #0a3d2e; }
+/* ── Chart Containers ── */
+.chart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.chart-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.chart-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+}
 
-  /* Equation card */
-  .eq-card {
-    background: #1a1a2e;
+/* ── Insights Box ── */
+.insight-outer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 44px;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.insight-outer::after {
+    content: '💡';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.04;
+    bottom: -10px;
+    right: 20px;
+}
+.insight-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent1);
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+}
+.insight-body {
+    font-size: 15px;
+    color: #C9D1D9;
+    line-height: 1.85;
+}
+.insight-body b { color: var(--accent2); }
+.insight-body .highlight { color: var(--accent1); font-weight: 600; }
+.ref-box {
+    margin-top: 28px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 18px 22px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.82rem;
-    color: #7ee8c8;
+}
+.ref-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+.ref-item {
+    font-size: 12px;
+    color: var(--muted);
     line-height: 1.8;
-    margin: 12px 0;
-  }
+}
 
-  /* Significance pill */
-  .sig { background: #d1fae5; color: #065f46; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
-  .nsig { background: #fee2e2; color: #991b1b; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+/* ── Divider ── */
+.fancy-divider {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), var(--accent1), var(--border), transparent);
+    margin: 32px 0;
+    opacity: 0.6;
+}
 
-  /* Tab styling override */
-  .stTabs [data-baseweb="tab-list"] {
-    gap: 4px; background: #f8f9fa;
-    border-radius: 12px; padding: 4px;
-  }
-  .stTabs [data-baseweb="tab"] {
-    border-radius: 9px; padding: 8px 18px;
-    font-size: 0.83rem; font-weight: 600;
-  }
+/* ── Credits ── */
+.credits {
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+}
+.credits b { color: var(--accent2); }
 
-  /* Metric delta */
-  [data-testid="metric-container"] { background: white; border-radius: 12px; padding: 16px; border: 1px solid #e8ecf0; }
+/* ── Sidebar info card ── */
+.sb-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+}
+.sb-info b { color: var(--text); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 </style>
 """, unsafe_allow_html=True)
 
+# ── Plotly theme ──────────────────────────────────────────────────────────────
+PLOT_BG    = "#161B22"
+PAPER_BG   = "#161B22"
+GRID_COLOR = "#21262D"
+TEXT_COLOR = "#8B949E"
+FONT_FAMILY = "Instrument Sans, sans-serif"
+PALETTE = ["#F78166","#79C0FF","#56D364","#E3B341","#BC8CFF","#FF7B72","#58A6FF","#3FB950","#D29922"]
 
-# ─── DATA LOADING ────────────────────────────────────────────────────
+LAYOUT_BASE = dict(
+    paper_bgcolor=PAPER_BG,
+    plot_bgcolor=PLOT_BG,
+    font=dict(family=FONT_FAMILY, color=TEXT_COLOR, size=12),
+    margin=dict(l=40, r=20, t=40, b=40),
+    colorway=PALETTE,
+    legend=dict(
+        bgcolor="rgba(22,27,34,0.9)",
+        bordercolor="#30363D",
+        borderwidth=1,
+        font=dict(size=11, color="#C9D1D9"),
+    ),
+)
+AXIS_BASE = dict(
+    showgrid=True, gridcolor=GRID_COLOR, gridwidth=1,
+    linecolor="#30363D", linewidth=1,
+    tickfont=dict(size=11, color=TEXT_COLOR),
+    title_font=dict(size=12, color=TEXT_COLOR),
+    zeroline=False,
+)
+
+# ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    dd   = pd.read_csv("dashboard_data.csv")
-    cd   = pd.read_csv("cleaned_dataset.csv")
-    diag = pd.read_csv("diagnostics_results.csv")
-    corr = pd.read_csv("correlation_results.csv")
-    with open("model_params.json") as f:
-        mp = json.load(f)
-    full = cd.merge(
-        dd[["Country Name","Country Code","Year",
-            "predicted_learning_poverty","huber_residuals"]],
-        on=["Country Name","Country Code","Year"], how="left"
-    )
-    return full, diag, corr, mp
+    df = pd.read_csv("cleaned_dataset.csv")
+    df.columns = df.columns.str.strip()
+    return df
 
-full, diag, corr_df, mp = load_data()
+df = load_data()
 
-COEFS   = mp["coefficients"]
-PVALS   = mp["p_values"]
-CI      = mp["confidence_intervals"]
-YEARS   = sorted(full["Year"].unique().tolist())
-COUNTRIES = sorted(full["Country Name"].unique().tolist())
-
-IND_VARS = ["pupil_teacher_ratio","trained_teachers",
-            "gov_expenditure","u5_mortality"]
-IND_LABELS = {
-    "pupil_teacher_ratio":  "Pupil-Teacher Ratio",
-    "trained_teachers":     "Trained Teachers (%)",
-    "gov_expenditure":      "Gov. Expenditure per Student (% GDP/cap)",
-    "u5_mortality":         "Under-5 Mortality (per 1,000 live births)",
-}
-
-PALETTE = ["#1a6b4a","#e63946","#457b9d","#f4a261","#6a4c93","#2a9d8f"]
-
-# ─── COLOR HELPER ───────────────────────────────────────────────────
-def lp_color(v):
-    if v is None or np.isnan(v): return "#cccccc"
-    if v < 15:  return "#2a9d8f"
-    if v < 35:  return "#57cc99"
-    if v < 55:  return "#e9c46a"
-    if v < 75:  return "#f4a261"
-    return "#e63946"
-
-def predict(ptr, tt, ge, um):
-    val = (COEFS["const"]
-           + COEFS["pupil_teacher_ratio"] * ptr
-           + COEFS["trained_teachers"]    * tt
-           + COEFS["gov_expenditure"]     * ge
-           + COEFS["u5_mortality"]        * um)
-    return max(0.0, min(100.0, val))
-
-
-# ════════════════════════════════════════════════════════════════════
-# HERO BANNER
-# ════════════════════════════════════════════════════════════════════
-st.markdown("""
-<div class="hero">
-  <h1>📚 Learning Poverty Dashboard</h1>
-  <p class="sub">What factors drive the share of children who cannot read by end of primary school?<br>
-  A regression-based analysis across 75 countries, 2000–2023 — SDG 4: Quality Education</p>
-  <div class="badges">
-    <span class="badge">🌍 75 Countries</span>
-    <span class="badge">📅 2000–2023</span>
-    <span class="badge">📊 Robust Regression (Huber)</span>
-    <span class="badge">🏦 World Bank Open Data</span>
-    <span class="badge">🎯 SDG 4 — Quality Education</span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-
-# ════════════════════════════════════════════════════════════════════
-# SIDEBAR CONTROLS
-# ════════════════════════════════════════════════════════════════════
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### ⚙️ Dashboard Controls")
-    st.markdown("---")
-
-    sel_year = st.slider(
-        "📅 Select Year",
-        min_value=int(min(YEARS)),
-        max_value=int(max(YEARS)),
-        value=2015, step=1,
-    )
-
-    st.markdown("---")
-    sel_countries = st.multiselect(
-        "🌍 Compare Countries",
-        options=COUNTRIES,
-        default=["Niger","Colombia","Spain","Korea, Rep."],
-    )
-
-    st.markdown("---")
-    focus_country = st.selectbox(
-        "🔎 Focus Country (Predictor Tab)",
-        options=COUNTRIES,
-        index=COUNTRIES.index("Colombia") if "Colombia" in COUNTRIES else 0,
-    )
-
-    st.markdown("---")
     st.markdown("""
-    <div style='font-size:0.75rem;color:#9ca3af;line-height:1.6'>
-    <strong>Model:</strong> Robust Linear Regression<br>
-    (Huber M-estimator, IRLS)<br><br>
-    <strong>Predictors:</strong><br>
-    • Pupil-teacher ratio<br>
-    • Trained teachers (%)<br>
-    • Gov. expenditure per student<br>
-    • Under-5 mortality<br><br>
-    <strong>Source:</strong> World Bank Open Data<br>
-    <strong>SDG:</strong> Goal 4 — Quality Education
+    <div style='font-family:Syne,sans-serif; font-size:20px; font-weight:800;
+                color:#F78166; margin-bottom:4px;'>📚 SDG 4 Explorer</div>
+    <div style='font-size:12px; color:#8B949E; margin-bottom:20px; line-height:1.6;'>
+        Quality Education · Learning Poverty
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("---")
 
-# ════════════════════════════════════════════════════════════════════
-# KPI ROW
-# ════════════════════════════════════════════════════════════════════
-yr_data = full[full["Year"] == sel_year].dropna(subset=["learning_poverty"])
+    # Year slider
+    year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
+    selected_year = st.slider(
+        "Select Year",
+        year_min, year_max, 2015,
+        help="Filter all charts and KPIs to this year"
+    )
 
-avg_lp   = yr_data["learning_poverty"].mean()
-n_cntry  = len(yr_data)
-worst_r  = yr_data.loc[yr_data["learning_poverty"].idxmax()]
-best_r   = yr_data.loc[yr_data["learning_poverty"].idxmin()]
-pct_50   = (yr_data["learning_poverty"] > 50).mean() * 100
+    st.markdown("---")
 
-col1, col2, col3, col4, col5 = st.columns(5)
-with col1:
-    st.metric("🌍 Avg. Learning Poverty", f"{avg_lp:.1f}%",
-              help="Average across all countries with data for selected year")
-with col2:
-    st.metric("📊 Countries Reporting", str(n_cntry),
-              help="Countries with learning poverty data in selected year")
-with col3:
-    st.metric("⚠️ Highest LP", worst_r["Country Name"].split(",")[0],
-              delta=f"{worst_r['learning_poverty']:.1f}%", delta_color="inverse")
-with col4:
-    st.metric("✅ Lowest LP", best_r["Country Name"].split(",")[0],
-              delta=f"{best_r['learning_poverty']:.1f}%", delta_color="normal")
-with col5:
-    st.metric("📈 Above 50%", f"{pct_50:.0f}%",
-              help="Share of reporting countries exceeding 50% learning poverty")
+    # Country filter
+    all_countries = sorted(df["Country Name"].unique())
+    selected_countries = st.multiselect(
+        "Filter Countries",
+        options=all_countries,
+        default=[],
+        placeholder="All countries",
+        help="Leave empty to include all countries"
+    )
 
-st.markdown("---")
+    st.markdown("---")
 
-# ════════════════════════════════════════════════════════════════════
-# TABS
-# ════════════════════════════════════════════════════════════════════
-tab_map, tab_trends, tab_drivers, tab_regression, tab_predictor, tab_about = st.tabs([
-    "🗺️  World Map",
-    "📈  Trends",
-    "🔍  Drivers",
-    "📐  Regression",
-    "🧮  Predictor",
-    "ℹ️  About",
-])
+    # Driver selector for scatter
+    driver_options = {
+        "Pupil-Teacher Ratio": "pupil_teacher_ratio",
+        "Trained Teachers (%)": "trained_teachers",
+        "Gov. Education Expenditure (%)": "gov_expenditure",
+        "Children Out of School (%)": "children_out_of_school",
+        "Pupils Below Min. Proficiency (%)": "pupils_below_min_proficiency",
+        "Under-5 Mortality Rate": "u5_mortality",
+    }
+    selected_driver_label = st.selectbox(
+        "Driver to Explore",
+        list(driver_options.keys()),
+        index=0,
+        help="Choose which driver to compare against Learning Poverty"
+    )
+    selected_driver = driver_options[selected_driver_label]
 
+    st.markdown("---")
+    st.markdown("""
+    <div class='sb-info'>
+        <b>Response Variable</b><br>
+        Learning Poverty — share of children unable to read and understand a simple text by age 10.<br><br>
+        <b>Data Source</b><br>
+        World Bank · UNESCO · UNICEF<br><br>
+        <b>Coverage</b><br>
+        75 countries · 2000–2023
+    </div>
+    """, unsafe_allow_html=True)
 
-# ════════════════════════════════════════════════════════════════════
-# TAB 1: WORLD MAP
-# ════════════════════════════════════════════════════════════════════
-with tab_map:
-    st.markdown(f'<div class="section-header">Learning Poverty Rate by Country — {sel_year}</div>',
-                unsafe_allow_html=True)
+# ── Filter data ───────────────────────────────────────────────────────────────
+working_df = df.copy()
+if selected_countries:
+    working_df = working_df[working_df["Country Name"].isin(selected_countries)]
+
+filtered_df = working_df[working_df["Year"] == selected_year].copy()
+
+# ── Hero Header ───────────────────────────────────────────────────────────────
+country_scope = f"{len(selected_countries)} selected countries" if selected_countries else "75 countries"
+st.markdown(f"""
+<div class="hero">
+    <div class="hero-eyebrow">UN Sustainable Development Goal 4 · Quality Education</div>
+    <div class="hero-title">Drivers of <span>Learning Poverty</span><br>Across Nations</div>
+    <div class="hero-subtitle">
+        Examining how pupil-teacher ratios, teacher quality, government spending, and child health
+        outcomes influence the share of children unable to read proficiently by age 10.
+    </div>
+    <span class="hero-badge">📊 {selected_year}</span>
+    <span class="hero-badge">🌍 {country_scope}</span>
+    <span class="hero-badge">📅 2000–2023</span>
+</div>
+""", unsafe_allow_html=True)
+
+# ── KPI Row ───────────────────────────────────────────────────────────────────
+if filtered_df.empty:
+    st.warning("No data available for the selected filters. Please adjust your selection.")
+    st.stop()
+
+avg_lp   = filtered_df["learning_poverty"].mean()
+avg_ptr  = filtered_df["pupil_teacher_ratio"].mean()
+avg_tt   = filtered_df["trained_teachers"].mean()
+avg_ge   = filtered_df["gov_expenditure"].mean()
+worst    = filtered_df.loc[filtered_df["learning_poverty"].idxmax(), "Country Name"]
+best     = filtered_df.loc[filtered_df["learning_poverty"].idxmin(), "Country Name"]
+worst_v  = filtered_df["learning_poverty"].max()
+best_v   = filtered_df["learning_poverty"].min()
+
+st.markdown(f"""
+<div class="section-label">Global Snapshot</div>
+<div class="section-title">Key Indicators — {selected_year}</div>
+""", unsafe_allow_html=True)
+
+c1, c2, c3, c4 = st.columns(4)
+with c1:
+    st.markdown(f"""
+    <div class="kpi-card kpi-red">
+        <span class="kpi-icon">📖</span>
+        <div class="kpi-label">Avg. Learning Poverty</div>
+        <div class="kpi-value">{avg_lp:.1f}%</div>
+        <div class="kpi-sub">Share of children below reading proficiency</div>
+    </div>""", unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"""
+    <div class="kpi-card kpi-blue">
+        <span class="kpi-icon">🏫</span>
+        <div class="kpi-label">Avg. Pupils per Teacher</div>
+        <div class="kpi-value">{avg_ptr:.1f}</div>
+        <div class="kpi-sub">Average pupil-to-teacher ratio</div>
+    </div>""", unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"""
+    <div class="kpi-card kpi-green">
+        <span class="kpi-icon">🎓</span>
+        <div class="kpi-label">Avg. Trained Teachers</div>
+        <div class="kpi-value">{avg_tt:.1f}%</div>
+        <div class="kpi-sub">Teachers meeting national standards</div>
+    </div>""", unsafe_allow_html=True)
+
+with c4:
+    st.markdown(f"""
+    <div class="kpi-card kpi-yellow">
+        <span class="kpi-icon">💰</span>
+        <div class="kpi-label">Avg. Gov. Expenditure</div>
+        <div class="kpi-value">{avg_ge:.1f}%</div>
+        <div class="kpi-sub">% of total govt. spending on education</div>
+    </div>""", unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# Stat pills — best/worst
+n_countries = len(filtered_df)
+avg_oos = filtered_df["children_out_of_school"].mean()
+avg_u5  = filtered_df["u5_mortality"].mean()
+avg_bmp = filtered_df["pupils_below_min_proficiency"].mean()
+
+st.markdown(f"""
+<div class="stat-row">
+    <div class="stat-pill">
+        <div class="stat-pill-label">🔴 Highest Poverty</div>
+        <div class="stat-pill-value">{worst_v:.1f}%</div>
+        <div class="stat-pill-country">{worst}</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-pill-label">🟢 Lowest Poverty</div>
+        <div class="stat-pill-value">{best_v:.1f}%</div>
+        <div class="stat-pill-country">{best}</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-pill-label">🧒 Out of School</div>
+        <div class="stat-pill-value">{avg_oos:.1f}%</div>
+        <div class="stat-pill-country">Avg. children not enrolled</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-pill-label">🏥 U5 Mortality</div>
+        <div class="stat-pill-value">{avg_u5:.1f}</div>
+        <div class="stat-pill-country">Avg. deaths per 1,000 live births</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-pill-label">📉 Below Min. Prof.</div>
+        <div class="stat-pill-value">{avg_bmp:.1f}%</div>
+        <div class="stat-pill-country">Avg. pupils below minimum</div>
+    </div>
+    <div class="stat-pill">
+        <div class="stat-pill-label">🌍 Countries</div>
+        <div class="stat-pill-value">{n_countries}</div>
+        <div class="stat-pill-country">In filtered dataset</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
+
+# ── CHARTS ROW 1 — Choropleth + Bar ──────────────────────────────────────────
+st.markdown(f"""
+<div class="section-label">Spatial Distribution</div>
+<div class="section-title">Learning Poverty at a Glance — {selected_year}</div>
+""", unsafe_allow_html=True)
+
+col_map, col_bar = st.columns([3, 2])
+
+with col_map:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown(f'<div class="chart-title">🗺️ Global Learning Poverty Map</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Darker shades indicate higher share of children below reading proficiency.</div>', unsafe_allow_html=True)
 
     fig_map = px.choropleth(
-        yr_data,
+        filtered_df,
         locations="Country Code",
         color="learning_poverty",
         hover_name="Country Name",
         hover_data={
-            "learning_poverty":       ":.1f",
-            "predicted_learning_poverty": ":.1f",
-            "pupil_teacher_ratio":    ":.1f",
-            "trained_teachers":       ":.1f",
-            "gov_expenditure":        ":.1f",
-            "u5_mortality":           ":.1f",
-            "Country Code":           False,
-        },
-        labels={
-            "learning_poverty":           "Learning Poverty (%)",
-            "predicted_learning_poverty": "Predicted LP (%)",
-            "pupil_teacher_ratio":        "Pupil-Teacher Ratio",
-            "trained_teachers":           "Trained Teachers (%)",
-            "gov_expenditure":            "Gov. Expenditure (% GDP/cap)",
-            "u5_mortality":               "Under-5 Mortality (per 1,000)",
+            "learning_poverty": ":.1f",
+            "pupil_teacher_ratio": ":.1f",
+            "trained_teachers": ":.1f",
+            "Country Code": False,
         },
         color_continuous_scale=[
-            [0.00, "#2a9d8f"], [0.15, "#57cc99"],
-            [0.35, "#e9c46a"], [0.55, "#f4a261"],
-            [0.75, "#e63946"], [1.00, "#6b0000"],
+            [0, "#1a3a2a"], [0.25, "#2d6a4f"],
+            [0.5, "#E3B341"], [0.75, "#F78166"],
+            [1.0, "#7a0f00"]
         ],
         range_color=[0, 100],
-        title=f"Learning Poverty Rate (%) — {sel_year}",
+        labels={"learning_poverty": "Learning Poverty (%)"},
     )
     fig_map.update_layout(
-        height=520,
-        margin=dict(l=0, r=0, t=40, b=0),
-        coloraxis_colorbar=dict(
-            title="LP (%)", thickness=14, len=0.6,
-            tickvals=[0,25,50,75,100],
-        ),
+        **LAYOUT_BASE,
+        margin=dict(l=0, r=0, t=0, b=0),
         geo=dict(
-            showframe=False, showcoastlines=True,
-            coastlinecolor="#cccccc", showland=True,
-            landcolor="#f0f4f8", showocean=True,
-            oceancolor="#e8f4f8",
+            showframe=False,
+            showcoastlines=True,
+            coastlinecolor="#30363D",
+            showland=True,
+            landcolor="#1C2333",
+            showocean=True,
+            oceancolor="#0D1117",
+            showlakes=False,
+            bgcolor=PLOT_BG,
+            projection_type="natural earth",
         ),
-        paper_bgcolor="white", plot_bgcolor="white",
+        coloraxis_colorbar=dict(
+            title="LP (%)",
+            tickfont=dict(size=10, color=TEXT_COLOR),
+            title_font=dict(size=11, color=TEXT_COLOR),
+            bgcolor=PAPER_BG,
+            bordercolor="#30363D",
+            borderwidth=1,
+        ),
+        height=380,
     )
     st.plotly_chart(fig_map, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="insight">
-    <strong>What this map reveals in {sel_year}:</strong> Of {n_cntry} countries with data,
-    <strong>{pct_50:.0f}%</strong> have learning poverty above 50%, meaning more than half of children
-    leave primary school without basic reading ability. The highest rate is
-    <strong>{worst_r['Country Name']} ({worst_r['learning_poverty']:.1f}%)</strong>,
-    while the lowest is <strong>{best_r['Country Name']} ({best_r['learning_poverty']:.1f}%)</strong>.
-    This gap reveals that learning poverty is not a fixed condition — it is driven by measurable,
-    addressable factors. Use the year slider to see how this has changed over time.
-    </div>
-    """, unsafe_allow_html=True)
+with col_bar:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📊 Top 15 Countries by Learning Poverty</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Countries with highest rates, ranked for the selected year.</div>', unsafe_allow_html=True)
 
-
-# ════════════════════════════════════════════════════════════════════
-# TAB 2: TRENDS
-# ════════════════════════════════════════════════════════════════════
-with tab_trends:
-    if not sel_countries:
-        st.warning("Select at least one country from the sidebar to view trends.")
-    else:
-        st.markdown('<div class="section-header">Learning Poverty Over Time</div>',
-                    unsafe_allow_html=True)
-
-        trend_data = full[full["Country Name"].isin(sel_countries)].sort_values("Year")
-
-        # LP trend line chart
-        fig_lp = px.line(
-            trend_data.dropna(subset=["learning_poverty"]),
-            x="Year", y="learning_poverty",
-            color="Country Name",
-            markers=True,
-            labels={"learning_poverty": "Learning Poverty (%)", "Country Name": "Country"},
-            color_discrete_sequence=PALETTE,
-            title="Learning Poverty Rate Over Time",
-        )
-        fig_lp.update_traces(line_width=2.5, marker_size=7)
-        fig_lp.update_layout(
-            height=380, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-            xaxis=dict(gridcolor="#e8ecf0"), yaxis=dict(gridcolor="#e8ecf0", range=[0,105]),
-            legend=dict(orientation="h", yanchor="bottom", y=1.02),
-        )
-        st.plotly_chart(fig_lp, use_container_width=True)
-
-        # Predictor trends — 2 x 2 grid
-        st.markdown('<div class="section-header">Driver Trends for Selected Countries</div>',
-                    unsafe_allow_html=True)
-
-        c1, c2 = st.columns(2)
-        driver_pairs = [
-            ("pupil_teacher_ratio", "Pupil-Teacher Ratio", c1),
-            ("trained_teachers",    "Trained Teachers (%)", c2),
-            ("gov_expenditure",     "Gov. Expenditure (% GDP/cap)", c1),
-            ("u5_mortality",        "Under-5 Mortality (per 1,000)", c2),
-        ]
-        for var, title, col in driver_pairs:
-            with col:
-                fig = px.line(
-                    trend_data.dropna(subset=[var]),
-                    x="Year", y=var,
-                    color="Country Name",
-                    markers=True,
-                    labels={var: title, "Country Name": ""},
-                    color_discrete_sequence=PALETTE,
-                    title=title,
-                )
-                fig.update_traces(line_width=2, marker_size=5)
-                fig.update_layout(
-                    height=280, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-                    xaxis=dict(gridcolor="#e8ecf0"),
-                    yaxis=dict(gridcolor="#e8ecf0"),
-                    showlegend=False,
-                    margin=dict(l=0, r=0, t=36, b=0),
-                )
-                st.plotly_chart(fig, use_container_width=True)
-
-
-# ════════════════════════════════════════════════════════════════════
-# TAB 3: DRIVERS (scatter plots)
-# ════════════════════════════════════════════════════════════════════
-with tab_drivers:
-    st.markdown(f'<div class="section-header">What Drives Learning Poverty? — {sel_year}</div>',
-                unsafe_allow_html=True)
-
-    # Correlation heatmap
-    c_left, c_right = st.columns([1.2, 1])
-    with c_left:
-        corr_vars = ["learning_poverty"] + IND_VARS
-        corr_matrix = full[corr_vars].corr()
-        labels_short = {
-            "learning_poverty":     "Learning Poverty",
-            "pupil_teacher_ratio":  "Pupil-Teacher Ratio",
-            "trained_teachers":     "Trained Teachers",
-            "gov_expenditure":      "Gov. Expenditure",
-            "u5_mortality":         "U5 Mortality",
-        }
-        corr_renamed = corr_matrix.rename(columns=labels_short, index=labels_short)
-        fig_corr = px.imshow(
-            corr_renamed,
-            color_continuous_scale="RdBu_r",
-            zmin=-1, zmax=1,
-            text_auto=".2f",
-            title="Pearson Correlation Matrix",
-            aspect="auto",
-        )
-        fig_corr.update_layout(
-            height=360, paper_bgcolor="white",
-            coloraxis_colorbar=dict(title="r", thickness=12, len=0.8),
-            margin=dict(l=0, r=0, t=40, b=0),
-        )
-        fig_corr.update_traces(textfont_size=11)
-        st.plotly_chart(fig_corr, use_container_width=True)
-
-    with c_right:
-        st.markdown("""
-        <div class="insight">
-        <strong>Correlation Highlights:</strong><br><br>
-        🔴 <strong>Under-5 Mortality</strong> has the strongest positive correlation
-        with learning poverty (r = 0.86) — countries with poor child health outcomes
-        also have the worst reading proficiency.<br><br>
-        🔴 <strong>Pupil-Teacher Ratio</strong> (r = 0.68) — overcrowded classrooms
-        strongly associate with higher learning poverty.<br><br>
-        🟢 <strong>Trained Teachers</strong> (r = −0.45) — more professionally trained
-        teachers correlate with lower learning poverty.<br><br>
-        🟢 <strong>Gov. Expenditure</strong> (r = −0.32) — higher investment per student
-        links to lower rates.
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown(f'<div class="section-header">Scatter Plots — Each Driver vs. Learning Poverty ({sel_year})</div>',
-                unsafe_allow_html=True)
-
-    yr_scatter = full[full["Year"] == sel_year].dropna(subset=["learning_poverty"])
-    col1, col2 = st.columns(2)
-    scatter_pairs = [
-        ("pupil_teacher_ratio", "Pupil-Teacher Ratio",          col1, PALETTE[0]),
-        ("trained_teachers",    "Trained Teachers (%)",          col2, PALETTE[1]),
-        ("gov_expenditure",     "Gov. Expenditure (% GDP/cap)",  col1, PALETTE[2]),
-        ("u5_mortality",        "Under-5 Mortality (per 1,000)", col2, PALETTE[3]),
+    top15 = filtered_df.nlargest(15, "learning_poverty").sort_values("learning_poverty")
+    colors_bar = [
+        "#7a0f00" if v >= 80 else
+        "#F78166" if v >= 60 else
+        "#E3B341" if v >= 40 else
+        "#56D364"
+        for v in top15["learning_poverty"]
     ]
-    for var, label, col, color in scatter_pairs:
-        d_sc = yr_scatter.dropna(subset=[var])
-        with col:
-            fig_sc = px.scatter(
-                d_sc, x=var, y="learning_poverty",
-                hover_name="Country Name",
-                hover_data={"learning_poverty": ":.1f", var: ":.1f"},
-                labels={var: label, "learning_poverty": "Learning Poverty (%)"},
-                trendline="ols",
-                trendline_color_override="#e63946",
-                title=f"{label} vs. Learning Poverty",
-                color_discrete_sequence=[color],
-            )
-            fig_sc.update_traces(marker_size=9, marker_opacity=0.7)
-            fig_sc.update_layout(
-                height=320, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-                xaxis=dict(gridcolor="#e8ecf0"),
-                yaxis=dict(gridcolor="#e8ecf0", range=[0,105]),
-                margin=dict(l=0, r=0, t=40, b=0),
-            )
-            st.plotly_chart(fig_sc, use_container_width=True)
+    fig_bar = go.Figure(go.Bar(
+        x=top15["learning_poverty"],
+        y=top15["Country Name"],
+        orientation="h",
+        marker_color=colors_bar,
+        text=[f"{v:.1f}%" for v in top15["learning_poverty"]],
+        textposition="outside",
+        textfont=dict(size=11, color=TEXT_COLOR),
+        hovertemplate="<b>%{y}</b><br>Learning Poverty: %{x:.1f}%<extra></extra>",
+    ))
+    fig_bar.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)", range=[0, 115]),
+        yaxis=dict(**AXIS_BASE, title_text="", showgrid=False),
+        height=380,
+    )
+    st.plotly_chart(fig_bar, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-# ════════════════════════════════════════════════════════════════════
-# TAB 4: REGRESSION RESULTS
-# ════════════════════════════════════════════════════════════════════
-with tab_regression:
-    st.markdown('<div class="section-header">Robust Regression Results (Huber M-estimator)</div>',
-                unsafe_allow_html=True)
+# ── CHARTS ROW 2 — Trend + Driver Scatter ─────────────────────────────────────
+st.markdown(f"""
+<div class="section-label">Trends & Drivers</div>
+<div class="section-title">How Learning Poverty Evolves & What Shapes It</div>
+""", unsafe_allow_html=True)
 
-    col_coef, col_fit = st.columns([1, 1])
+col_trend, col_scatter = st.columns(2)
 
-    # ── Coefficient plot
-    with col_coef:
-        coef_names = [k for k in COEFS if k != "const"]
-        coef_vals  = [COEFS[k] for k in coef_names]
-        ci_lo      = [CI[k]["0"] for k in coef_names]
-        ci_hi      = [CI[k]["1"] for k in coef_names]
-        p_vals_list = [PVALS[k] for k in coef_names]
-        bar_colors  = ["#e63946" if v > 0 else "#1a6b4a" for v in coef_vals]
+with col_trend:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📈 Learning Poverty Trend Over Time</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Global average trend with individual country lines in the background.</div>', unsafe_allow_html=True)
 
-        fig_coef = go.Figure()
-        for i, (name, val, lo, hi, pv, col) in enumerate(
-                zip(coef_names, coef_vals, ci_lo, ci_hi, p_vals_list, bar_colors)):
-            sig_label = "★ Significant" if pv < 0.05 else "✗ Not significant"
-            fig_coef.add_trace(go.Bar(
-                x=[val], y=[IND_LABELS.get(name, name)],
-                orientation="h",
-                marker_color=col,
-                name=sig_label,
+    trend_data = working_df.groupby("Year")["learning_poverty"].agg(["mean","min","max"]).reset_index()
+    
+    fig_trend = go.Figure()
+    
+    # Background: individual countries (faint)
+    countries_to_plot = selected_countries if selected_countries else all_countries[:25]
+    for country in countries_to_plot[:20]:
+        cdf = working_df[working_df["Country Name"] == country].sort_values("Year")
+        if len(cdf) >= 3:
+            fig_trend.add_trace(go.Scatter(
+                x=cdf["Year"], y=cdf["learning_poverty"],
+                mode="lines",
+                line=dict(width=1, color="rgba(255,255,255,0.08)"),
                 showlegend=False,
-                error_x=dict(
-                    type="data",
-                    symmetric=False,
-                    array=[hi - val],
-                    arrayminus=[val - lo],
-                    color="#555555",
-                    thickness=2, width=6,
-                ),
-                customdata=[[name, val, pv, lo, hi]],
-                hovertemplate=(
-                    "<b>%{y}</b><br>"
-                    "Coefficient: %{x:.3f}<br>"
-                    "95% CI: [%{customdata[3]:.3f}, %{customdata[4]:.3f}]<br>"
-                    "p-value: %{customdata[2]:.4f}<extra></extra>"
-                ),
+                hoverinfo="skip",
             ))
-
-        fig_coef.add_vline(x=0, line_color="#333333", line_width=1.5)
-        fig_coef.update_layout(
-            title="Regression Coefficients (raw scale)",
-            height=320, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-            xaxis=dict(title="Coefficient (per unit change in predictor)",
-                       gridcolor="#e8ecf0", zeroline=False),
-            yaxis=dict(gridcolor="#e8ecf0"),
-            margin=dict(l=0, r=20, t=40, b=0),
-            barmode="overlay",
-        )
-        st.plotly_chart(fig_coef, use_container_width=True)
-
-        # Significance table
-        sig_rows = []
-        for k in coef_names:
-            p = PVALS[k]
-            c = COEFS[k]
-            direction = "↑ Increases LP" if c > 0 else "↓ Decreases LP"
-            sig_rows.append({
-                "Variable":  IND_LABELS.get(k, k),
-                "Coef":      f"{c:+.4f}",
-                "p-value":   f"{p:.4f}",
-                "Direction": direction,
-                "Significant": "✅ Yes" if p < 0.05 else "❌ No",
-            })
-        st.dataframe(pd.DataFrame(sig_rows), hide_index=True, use_container_width=True)
-
-    # ── Actual vs Predicted
-    with col_fit:
-        fit_data = full.dropna(subset=["learning_poverty","predicted_learning_poverty"])
-        fig_fit = px.scatter(
-            fit_data,
-            x="learning_poverty",
-            y="predicted_learning_poverty",
-            hover_name="Country Name",
-            hover_data={"Year": True, "learning_poverty": ":.1f",
-                        "predicted_learning_poverty": ":.1f"},
-            labels={
-                "learning_poverty": "Actual Learning Poverty (%)",
-                "predicted_learning_poverty": "Predicted (%)",
-            },
-            color="learning_poverty",
-            color_continuous_scale=[
-                [0,"#2a9d8f"],[0.5,"#e9c46a"],[1,"#e63946"]
-            ],
-            title="Actual vs. Predicted Learning Poverty",
-        )
-        fig_fit.add_shape(
-            type="line", x0=0, y0=0, x1=100, y1=100,
-            line=dict(color="#e63946", dash="dash", width=1.5),
-        )
-        fig_fit.update_traces(marker_size=8, marker_opacity=0.7)
-        fig_fit.update_layout(
-            height=320, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-            xaxis=dict(range=[0,105], gridcolor="#e8ecf0"),
-            yaxis=dict(range=[0,105], gridcolor="#e8ecf0"),
-            coloraxis_showscale=False,
-            margin=dict(l=0, r=0, t=40, b=0),
-        )
-        st.plotly_chart(fig_fit, use_container_width=True)
-
-        # Residual histogram
-        fig_res = px.histogram(
-            fit_data, x="huber_residuals",
-            nbins=30,
-            labels={"huber_residuals": "Huber Residual"},
-            title="Distribution of Huber Residuals",
-            color_discrete_sequence=["#457b9d"],
-        )
-        fig_res.update_layout(
-            height=240, paper_bgcolor="white", plot_bgcolor="#f8f9fa",
-            xaxis=dict(gridcolor="#e8ecf0"),
-            yaxis=dict(gridcolor="#e8ecf0", title="Count"),
-            margin=dict(l=0, r=0, t=40, b=0),
-            bargap=0.05,
-        )
-        st.plotly_chart(fig_res, use_container_width=True)
-
-    # ── Regression Equation
-    st.markdown("---")
-    eq_parts = " + ".join([
-        f"({COEFS[k]:+.4f} × {IND_LABELS.get(k,k)})" for k in coef_names
-    ])
-    st.markdown(f"""
-    <div class="section-header">Regression Equation</div>
-    <div class="eq-card">
-      <span style="color:#ffd700;font-weight:700">Learning Poverty</span>
-      <span style="color:#ffffff"> = </span>
-      <span style="color:#7ee8c8">{COEFS['const']:.4f}</span>
-      <span style="color:#ffffff"> + </span>
-      <span style="color:#a8d8ea">{COEFS['pupil_teacher_ratio']:+.4f} × Pupil-Teacher Ratio</span>
-      <span style="color:#ffffff"> + </span>
-      <span style="color:#a8d8ea">{COEFS['trained_teachers']:+.4f} × Trained Teachers (%)</span>
-      <span style="color:#ffffff"> + </span>
-      <span style="color:#a8d8ea">{COEFS['gov_expenditure']:+.4f} × Gov. Expenditure</span>
-      <span style="color:#ffffff"> + </span>
-      <span style="color:#ffb3b3">{COEFS['u5_mortality']:+.4f} × Under-5 Mortality</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── Diagnostics
-    st.markdown("---")
-    st.markdown('<div class="section-header">OLS Assumption Diagnostics — Why Robust Regression?</div>',
-                unsafe_allow_html=True)
-
-    diag_display = diag.copy()
-    diag_display["Violation Status"] = diag_display["Violation Status"].apply(
-        lambda x: "🔴 " + x if x == "Violated" else "🟢 " + x
+    
+    # Confidence band
+    fig_trend.add_trace(go.Scatter(
+        x=pd.concat([trend_data["Year"], trend_data["Year"][::-1]]),
+        y=pd.concat([trend_data["max"], trend_data["min"][::-1]]),
+        fill="toself",
+        fillcolor="rgba(247,129,102,0.08)",
+        line=dict(color="rgba(0,0,0,0)"),
+        showlegend=False,
+        hoverinfo="skip",
+    ))
+    
+    # Mean line
+    fig_trend.add_trace(go.Scatter(
+        x=trend_data["Year"],
+        y=trend_data["mean"],
+        mode="lines+markers",
+        name="Global Average",
+        line=dict(color="#F78166", width=3),
+        marker=dict(size=7, color="#F78166", symbol="circle"),
+        hovertemplate="<b>%{x}</b><br>Avg Learning Poverty: %{y:.1f}%<extra></extra>",
+    ))
+    
+    # Vertical line for selected year
+    fig_trend.add_vline(
+        x=selected_year,
+        line_dash="dash",
+        line_color="#79C0FF",
+        line_width=1.5,
+        annotation_text=f"  {selected_year}",
+        annotation_font=dict(color="#79C0FF", size=11),
     )
-    st.dataframe(diag_display, hide_index=True, use_container_width=True)
-    st.markdown("""
-    <div class="insight">
-    <strong>Why Robust Regression?</strong> All five OLS assumptions were violated in this dataset —
-    residuals are non-normal, heteroscedastic, and autocorrelated, with 25 influential outliers.
-    These violations make OLS estimates unreliable. The <strong>Huber M-estimator</strong> down-weights
-    influential observations and produces stable, unbiased coefficient estimates even when OLS fails,
-    making it the correct choice for this analysis.
-    </div>
-    """, unsafe_allow_html=True)
+    
+    fig_trend.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(**AXIS_BASE, title_text="Year"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        height=360,
+    )
+    st.plotly_chart(fig_trend, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
+with col_scatter:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown(f'<div class="chart-title">🔍 Learning Poverty vs. {selected_driver_label}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="chart-desc">Each dot is a country in {selected_year}. Trendline shows overall direction.</div>', unsafe_allow_html=True)
 
-# ════════════════════════════════════════════════════════════════════
-# TAB 5: LIVE PREDICTOR
-# ════════════════════════════════════════════════════════════════════
-with tab_predictor:
-    st.markdown('<div class="section-header">Estimate Learning Poverty Using the Regression Model</div>',
-                unsafe_allow_html=True)
-    st.markdown(f"Adjust the inputs below to estimate learning poverty for any scenario. "
-                f"Defaults loaded from **{focus_country}** (latest available data).")
+    fig_scatter = px.scatter(
+        filtered_df,
+        x=selected_driver,
+        y="learning_poverty",
+        color="learning_poverty",
+        hover_name="Country Name",
+        hover_data={
+            selected_driver: ":.2f",
+            "learning_poverty": ":.1f",
+            "Country Code": False,
+        },
+        color_continuous_scale=[[0,"#56D364"],[0.5,"#E3B341"],[1,"#F78166"]],
+        range_color=[0, 100],
+        trendline="ols",
+        trendline_color_override="#79C0FF",
+        size_max=14,
+        labels={
+            selected_driver: selected_driver_label,
+            "learning_poverty": "Learning Poverty (%)",
+        },
+    )
+    fig_scatter.update_traces(
+        selector=dict(mode="markers"),
+        marker=dict(size=10, line=dict(width=0.5, color="rgba(255,255,255,0.2)")),
+    )
+    fig_scatter.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(**AXIS_BASE, title_text=selected_driver_label),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        coloraxis_showscale=False,
+        height=360,
+    )
+    st.plotly_chart(fig_scatter, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Load defaults from focus country
-    fc_data = full[full["Country Name"] == focus_country].sort_values("Year").dropna(
-        subset=IND_VARS).tail(1)
-    def_vals = {
-        "pupil_teacher_ratio": float(fc_data["pupil_teacher_ratio"].values[0]) if len(fc_data) else 25.0,
-        "trained_teachers":    float(fc_data["trained_teachers"].values[0])    if len(fc_data) else 80.0,
-        "gov_expenditure":     float(fc_data["gov_expenditure"].values[0])     if len(fc_data) else 14.0,
-        "u5_mortality":        float(fc_data["u5_mortality"].values[0])        if len(fc_data) else 30.0,
-    }
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-    col_in, col_out = st.columns([1.2, 1])
+# ── CHARTS ROW 3 — Multi-driver radar + heatmap ───────────────────────────────
+st.markdown(f"""
+<div class="section-label">Multi-Factor Analysis</div>
+<div class="section-title">Driver Profiles & Country Comparisons</div>
+""", unsafe_allow_html=True)
 
-    with col_in:
-        ptr = st.slider("👨‍🏫 Pupil-Teacher Ratio (students per teacher)",
-                        min_value=5.0, max_value=80.0,
-                        value=round(def_vals["pupil_teacher_ratio"], 1), step=0.5)
-        tt  = st.slider("🎓 Trained Teachers (%)",
-                        min_value=0.0, max_value=100.0,
-                        value=round(def_vals["trained_teachers"], 1), step=0.5)
-        ge  = st.slider("💰 Gov. Expenditure per Student (% of GDP/cap)",
-                        min_value=0.0, max_value=50.0,
-                        value=round(def_vals["gov_expenditure"], 1), step=0.5)
-        um  = st.slider("👶 Under-5 Mortality (per 1,000 live births)",
-                        min_value=2.0, max_value=75.0,
-                        value=round(min(def_vals["u5_mortality"], 75.0), 1), step=0.5)
+col_radar, col_heat = st.columns(2)
 
-    with col_out:
-        lp_pred = predict(ptr, tt, ge, um)
-        color   = lp_color(lp_pred)
-        label   = ("🔴 Critical" if lp_pred > 75 else
-                   "🟠 High"     if lp_pred > 50 else
-                   "🟡 Moderate" if lp_pred > 25 else
-                   "🟢 Low"      if lp_pred > 10 else
-                   "🟢 Very Low")
+with col_radar:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">🕸️ Driver Radar — Top 6 vs Bottom 6 Countries</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Normalized driver profiles of highest vs lowest learning poverty countries.</div>', unsafe_allow_html=True)
 
-        st.markdown(f"""
-        <div style="background:white;border:2px solid {color};border-radius:16px;
-                    padding:28px;text-align:center;box-shadow:0 4px 16px {color}33;">
-          <div style="font-size:0.75rem;font-weight:700;color:#6b7280;
-                      text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">
-            Estimated Learning Poverty
-          </div>
-          <div style="font-size:4.5rem;font-weight:900;color:{color};line-height:1">
-            {lp_pred:.1f}%
-          </div>
-          <div style="font-size:0.9rem;color:#6b7280;margin-top:8px">
-            of children leave primary school<br>unable to read at grade level
-          </div>
-          <div style="margin-top:16px;font-size:1rem;font-weight:700;color:{color}">
-            {label}
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    radar_vars = ["pupil_teacher_ratio","trained_teachers","gov_expenditure",
+                  "children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
+    radar_labels = ["Pupil-Teacher\nRatio","Trained\nTeachers","Gov.\nExpenditure",
+                    "Out of\nSchool","Below Min.\nProficiency","U5\nMortality"]
 
-        # Gauge
-        fig_gauge = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=lp_pred,
-            number={"suffix": "%", "font": {"size": 28}},
-            gauge={
-                "axis":      {"range": [0, 100], "tickwidth": 1},
-                "bar":       {"color": color, "thickness": 0.25},
-                "bgcolor":   "white",
-                "steps": [
-                    {"range": [0,  15], "color": "#d1fae5"},
-                    {"range": [15, 35], "color": "#fef3c7"},
-                    {"range": [35, 55], "color": "#fed7aa"},
-                    {"range": [55, 75], "color": "#fecaca"},
-                    {"range": [75,100], "color": "#fee2e2"},
-                ],
-                "threshold": {"line": {"color": color, "width": 3},
-                              "thickness": 0.75, "value": lp_pred},
-            },
+    top6    = filtered_df.nlargest(6, "learning_poverty")[radar_vars].mean()
+    bottom6 = filtered_df.nsmallest(6, "learning_poverty")[radar_vars].mean()
+    
+    # Normalize 0-1
+    df_norm = working_df[radar_vars]
+    vmin, vmax = df_norm.min(), df_norm.max()
+    top6_n    = (top6    - vmin) / (vmax - vmin)
+    bottom6_n = (bottom6 - vmin) / (vmax - vmin)
+
+    fig_radar = go.Figure()
+    for vals, name, color in [
+        (top6_n,    "High LP Countries", "#F78166"),
+        (bottom6_n, "Low LP Countries",  "#56D364"),
+    ]:
+        r_vals = list(vals) + [vals.iloc[0]]
+        theta  = radar_labels + [radar_labels[0]]
+        fig_radar.add_trace(go.Scatterpolar(
+            r=r_vals,
+            theta=theta,
+            fill="toself",
+            name=name,
+            line=dict(color=color, width=2),
+            fillcolor=color.replace(")", ",0.15)").replace("rgb", "rgba") if "rgb" in color else f"{color}26",
+            marker=dict(size=6, color=color),
         ))
-        fig_gauge.update_layout(
-            height=220, paper_bgcolor="white",
-            margin=dict(l=20, r=20, t=20, b=10),
-        )
-        st.plotly_chart(fig_gauge, use_container_width=True)
 
-    # Insight
-    strongest_k = max(IND_VARS, key=lambda k: abs(COEFS[k]))
-    st.markdown(f"""
-    <div class="insight">
-    <strong>How to read this:</strong> At the input values above, the model estimates
-    <strong>{lp_pred:.1f}%</strong> learning poverty — rated as <strong>{label}</strong>.
-    The single strongest driver in this model is
-    <strong>{IND_LABELS[strongest_k]}</strong> with a coefficient of
-    <strong>{COEFS[strongest_k]:+.4f}</strong>, meaning each additional unit of this variable
-    shifts predicted learning poverty by {abs(COEFS[strongest_k]):.2f} percentage points.
-    This tool lets policymakers ask: "If we reduce class sizes or train more teachers,
-    by how much does learning poverty fall?"
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Country comparison table
-    st.markdown("---")
-    st.markdown('<div class="section-header">Country Snapshot — Latest Available Data</div>',
-                unsafe_allow_html=True)
-    latest = full.sort_values("Year").groupby("Country Name").last().reset_index()
-    snap = latest[["Country Name","Year","learning_poverty","predicted_learning_poverty",
-                   "pupil_teacher_ratio","trained_teachers","gov_expenditure","u5_mortality"]].copy()
-    snap.columns = ["Country","Year","Actual LP (%)","Predicted LP (%)",
-                    "P-T Ratio","Trained Teachers (%)","Gov. Exp. (% GDP/cap)","U5 Mortality"]
-    snap = snap.sort_values("Actual LP (%)", ascending=False).reset_index(drop=True)
-    st.dataframe(
-        snap.style.background_gradient(subset=["Actual LP (%)"], cmap="RdYlGn_r")
-                  .format({"Actual LP (%)":":.1f","Predicted LP (%)":":.1f",
-                           "P-T Ratio":":.1f","Trained Teachers (%)":":.1f",
-                           "Gov. Exp. (% GDP/cap)":":.1f","U5 Mortality":":.1f"}),
-        use_container_width=True, height=400,
+    fig_radar.update_layout(
+        **LAYOUT_BASE,
+        polar=dict(
+            bgcolor=PLOT_BG,
+            radialaxis=dict(visible=True, range=[0, 1], tickfont=dict(size=9, color=TEXT_COLOR), gridcolor=GRID_COLOR, linecolor=GRID_COLOR),
+            angularaxis=dict(tickfont=dict(size=10, color=TEXT_COLOR), linecolor=GRID_COLOR, gridcolor=GRID_COLOR),
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
+        height=380,
+        margin=dict(l=50, r=50, t=30, b=60),
     )
+    st.plotly_chart(fig_radar, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
+with col_heat:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">🔥 Correlation Heatmap — All Variables</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Pearson correlation between learning poverty and its drivers (full dataset).</div>', unsafe_allow_html=True)
 
-# ════════════════════════════════════════════════════════════════════
-# TAB 6: ABOUT
-# ════════════════════════════════════════════════════════════════════
-with tab_about:
-    col_a, col_b = st.columns(2)
-    with col_a:
-        st.markdown("""
-        ### 📌 Research Question
-        > *"What factors significantly influence Learning Poverty across countries?"*
+    corr_vars = ["learning_poverty","pupil_teacher_ratio","trained_teachers",
+                 "gov_expenditure","children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
+    corr_labels = ["Learning\nPoverty","Pupil-Teacher\nRatio","Trained\nTeachers",
+                   "Gov.\nExpenditure","Out of\nSchool","Below Min.\nProf.","U5\nMortality"]
+    corr_matrix = working_df[corr_vars].corr().values
 
-        Learning Poverty — the share of children who cannot read and understand a simple
-        text by age 10 — is the SDG 4 flagship indicator. It combines in-school proficiency
-        with out-of-school rates to give a complete picture of educational exclusion.
+    fig_heat = go.Figure(go.Heatmap(
+        z=corr_matrix,
+        x=corr_labels,
+        y=corr_labels,
+        colorscale=[
+            [0.0, "#0d4f8c"], [0.3, "#1a6bb0"],
+            [0.5, "#161B22"],
+            [0.7, "#8b2500"], [1.0, "#F78166"],
+        ],
+        zmin=-1, zmax=1,
+        text=[[f"{v:.2f}" for v in row] for row in corr_matrix],
+        texttemplate="%{text}",
+        textfont=dict(size=10, color="white"),
+        hovertemplate="<b>%{x}</b> × <b>%{y}</b><br>r = %{z:.3f}<extra></extra>",
+    ))
+    fig_heat.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent"),
+        yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), linecolor="transparent", autorange="reversed"),
+        coloraxis_colorbar=dict(title="r", tickfont=dict(size=9, color=TEXT_COLOR)),
+        height=380,
+    )
+    st.plotly_chart(fig_heat, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        ---
-        ### 🔬 Methodology
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-        **Model:** Robust Linear Regression (Huber M-estimator)
-        — chosen because all five OLS assumptions were violated in this dataset.
+# ── CHARTS ROW 4 — Multi-country trend + Box plot ─────────────────────────────
+st.markdown(f"""
+<div class="section-label">Country Deep Dive</div>
+<div class="section-title">Individual Country Trajectories & Distributions</div>
+""", unsafe_allow_html=True)
 
-        **Response variable:**
-        - Learning Poverty Rate (%) — World Bank / UNESCO
+col_multi, col_box = st.columns(2)
 
-        **Explanatory variables (literature-backed):**
+with col_multi:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📉 Country-Level Learning Poverty Trends</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">Select countries in the sidebar to compare trajectories.</div>', unsafe_allow_html=True)
 
-        | Variable | Source |
-        |---|---|
-        | Pupil-Teacher Ratio | Hanushek & Woessmann (2010) |
-        | Trained Teachers (%) | UNESCO (2022) |
-        | Gov. Expenditure per Student | Psacharopoulos & Patrinos (2018) |
-        | Under-5 Mortality | Grantham-McGregor et al. (2007) |
+    plot_countries = selected_countries if selected_countries else [
+        "India","Nigeria","Chad","Niger","Mali","Morocco","Colombia","Brazil",
+        "Korea, Rep.","Norway","Germany","United States"
+    ]
+    plot_countries = [c for c in plot_countries if c in df["Country Name"].values][:12]
 
-        ---
-        ### 📊 Dataset
-        - **Source:** World Bank Open Data
-        - **Coverage:** 75 countries, 2000–2023
-        - **Observations:** 370 (after cleaning)
-        - **Cleaning:** Forward/back-fill (max 2 steps), no mean imputation
-        """)
+    fig_multi = go.Figure()
+    for i, country in enumerate(plot_countries):
+        cdf = working_df[working_df["Country Name"] == country].sort_values("Year")
+        if cdf.empty:
+            continue
+        fig_multi.add_trace(go.Scatter(
+            x=cdf["Year"], y=cdf["learning_poverty"],
+            mode="lines+markers",
+            name=country,
+            line=dict(width=2, color=PALETTE[i % len(PALETTE)]),
+            marker=dict(size=6),
+            hovertemplate=f"<b>{country}</b><br>Year: %{{x}}<br>LP: %{{y:.1f}}%<extra></extra>",
+        ))
 
-    with col_b:
-        st.markdown("""
-        ### 📐 Model Results Summary
+    fig_multi.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(**AXIS_BASE, title_text="Year"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        height=360,
+        legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, font=dict(size=10)),
+    )
+    st.plotly_chart(fig_multi, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        | Predictor | Coefficient | p-value | Significant? |
-        |---|---|---|---|
-        | Intercept | +47.14 | < 0.001 | ✅ |
-        | Pupil-Teacher Ratio | −0.98 | 0.595 | ❌ |
-        | Trained Teachers (%) | −2.82 | 0.011 | ✅ |
-        | Gov. Expenditure | −3.64 | 0.001 | ✅ |
-        | Under-5 Mortality | +22.74 | < 0.001 | ✅ |
+with col_box:
+    st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+    st.markdown('<div class="chart-title">📦 Distribution of Learning Poverty by Decade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="chart-desc">How the spread of learning poverty has shifted across time periods.</div>', unsafe_allow_html=True)
 
-        ---
-        ### 🔑 Key Findings
+    def decade_label(y):
+        if y < 2005: return "2000–2004"
+        elif y < 2010: return "2005–2009"
+        elif y < 2015: return "2010–2014"
+        elif y < 2020: return "2015–2019"
+        else:          return "2020–2023"
 
-        **Under-5 Mortality** is the dominant driver (coef = +22.74, p < 0.001).
-        Countries with high child mortality — a proxy for poor nutrition, healthcare,
-        and early childhood development — have dramatically higher learning poverty.
-        This underscores that education outcomes are inseparable from health outcomes.
+    working_df["Decade"] = working_df["Year"].apply(decade_label)
+    decade_order = ["2000–2004","2005–2009","2010–2014","2015–2019","2020–2023"]
+    decade_colors = ["#BC8CFF","#79C0FF","#56D364","#E3B341","#F78166"]
 
-        **Trained Teachers (%)** (coef = −2.82, p = 0.011) — every percentage
-        point increase in professionally trained teachers reduces learning poverty
-        by 2.8 percentage points on average.
+    fig_box = go.Figure()
+    for dec, col in zip(decade_order, decade_colors):
+        sub = working_df[working_df["Decade"] == dec]
+        if not sub.empty:
+            fig_box.add_trace(go.Box(
+                y=sub["learning_poverty"],
+                name=dec,
+                marker_color=col,
+                boxpoints="outliers",
+                hovertemplate="<b>%{x}</b><br>Learning Poverty: %{y:.1f}%<extra></extra>"
+            ))
+            
+    fig_box.update_layout(
+        **LAYOUT_BASE,
+        xaxis=dict(**AXIS_BASE, title_text="Time Period"),
+        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        showlegend=False,
+        height=360,
+    )
+    st.plotly_chart(fig_box, use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        **Government Expenditure per Student** (coef = −3.64, p < 0.001) —
-        the strongest purely educational lever: investing more per student
-        drives measurable reductions in learning poverty.
+# ── INSIGHTS & REFERENCES ───────────────────────────────────────────────────
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-        **Pupil-Teacher Ratio** was not statistically significant in the
-        robust model (p = 0.595), suggesting that class size alone may matter
-        less than *teacher quality* and *investment* per student.
-
-        ---
-        ### 🏦 Data Sources
-        - World Bank Open Data — [data.worldbank.org](https://data.worldbank.org)
-        - UNESCO UIS — [uis.unesco.org](https://uis.unesco.org)
-
-        ---
-        ### 🎓 Course
-        **Analytics Techniques and Tools — Finals**
-        SDG 4: Quality Education
-        """)
-
-
-# ─── FOOTER ─────────────────────────────────────────────────────────
-st.markdown("---")
 st.markdown("""
-<div style="text-align:center;font-size:0.75rem;color:#9ca3af;padding:12px 0">
-  Built with Streamlit · Data: World Bank Open Data ·
-  Model: Robust Regression (Huber M-estimator) ·
-  SDG 4 — Quality Education · Analytics Techniques and Tools
+<div class="insight-outer">
+    <div class="insight-heading">💡 Core Analytical Insights</div>
+    <div class="insight-body">
+        1. <span class="highlight">The Health-Education Nexus:</span> There is an exceptionally strong positive correlation (<b>r = 0.79</b>) between under-5 mortality rates and learning poverty. This underscores that foundational community-level health and childhood survival indicators are deeply intertwined with cognitive literacy outcomes.<br><br>
+        2. <span class="highlight">Classroom Strain:</span> High pupil-teacher ratios exhibit a pronounced positive correlation (<b>r = 0.67</b>) with reading deficits. As instructional class sizes expand, individual student attention drops, predictably compounding learning poverty rates.<br><br>
+        3. <span class="highlight">Systemic Investment:</span> Both teacher qualification standards (<b>r = -0.45</b>) and national education expenditure (<b>r = -0.31</b>) show an inverse relationship with learning poverty. Strong financial dedication and certified instructional capacity serve as critical protective buffers against global educational poverty.
+    </div>
+    
+    <div class="ref-box">
+        <div class="ref-title">📋 Definitions & Source Materials</div>
+        <div class="ref-item"><b>Learning Poverty Rate:</b> The percentage of children who cannot read and understand a simple, age-appropriate text by age 10. This metric acts as a proxy indicator for elementary instructional health.</div>
+        <div class="ref-item"><b>Data Attribution:</b> Metrics compiled across the 2000–2023 timeframe from harmonized reporting networks managed by the World Bank, UNESCO Institute for Statistics (UIS), and UNICEF monitoring databases.</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── CREDITS ──────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="credits">
+    Developed for the <b>SDG 4 Progress Tracking Initiative</b> · Data compiled via World Bank Education Architecture.
 </div>
 """, unsafe_allow_html=True)
