@@ -83,30 +83,31 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 20px;
 }
 
-/* ── KPI Cards (Fixed Uniform Sizing) ── */
+/* ── KPI Cards (Fluid & High-Contrast Safety Layout) ── */
 .kpi-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 24px 22px;
+    padding: 22px 20px;
     position: relative;
     overflow: hidden;
     transition: border-color 0.2s ease, transform 0.2s ease;
     
-    /* Changed from min-height to a strict, fixed height to keep cards perfectly identical */
-    height: 160px; 
+    /* Dynamic Scaling Setup */
+    box-sizing: border-box;
+    min-height: 175px; 
+    height: 100%;
     
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-sizing: border-box; /* Forces padding to stay inside the 160px boundaries */
 }
 .kpi-card:hover { border-color: rgba(247,129,102,0.4); transform: translateY(-2px); }
 .kpi-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
+    height: 4px;
 }
 .kpi-red::before    { background: var(--grad1); }
 .kpi-blue::before   { background: var(--grad2); }
@@ -114,38 +115,42 @@ section[data-testid="stSidebar"] .stSlider label {
 .kpi-yellow::before { background: var(--grad4); }
 
 .kpi-icon {
-    font-size: 28px;
-    margin-bottom: 12px;
+    font-size: 26px;
+    margin-bottom: 8px;
     display: block;
 }
 .kpi-label {
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.10em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    line-height: 1.3;
 }
 .kpi-value {
     font-family: 'Instrument Sans', sans-serif;
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 800;
-    line-height: 1;
-    margin-bottom: 6px;
+    line-height: 1.1;
+    margin-bottom: 8px;
 }
 .kpi-red .kpi-value    { color: var(--accent1); }
 .kpi-blue .kpi-value   { color: var(--accent2); }
 .kpi-green .kpi-value  { color: var(--accent3); }
 .kpi-yellow .kpi-value { color: var(--accent4); }
+
 .kpi-sub {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--muted);
+    line-height: 1.4;
+    margin-top: auto; /* Pushes content down elegantly */
 }
 
 /* ── Stat Pills ── */
 .stat-row {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
     margin-bottom: 20px;
 }
@@ -153,13 +158,14 @@ section[data-testid="stSidebar"] .stSlider label {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 10px 16px;
+    padding: 12px 16px;
     flex: 1;
-    min-width: 140px;
+    min-width: 150px;
+    box-sizing: border-box;
 }
 .stat-pill-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.stat-pill-value { font-family: 'Instrument Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
-.stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stat-pill-value { font-family: 'Instrument Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+.stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
 
 /* ── Chart Containers ── */
 .chart-box {
@@ -215,7 +221,7 @@ section[data-testid="stSidebar"] .stSlider label {
 }
 .sb-info b { color: var(--text); }
 
-/* scrollbar */
+/* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -223,7 +229,7 @@ section[data-testid="stSidebar"] .stSlider label {
 </style>
 """, unsafe_allow_html=True)
 
-# ── Plotly theme ──────────────────────────────────────────────────────────────
+# ── Plotly Theme Configuration ────────────────────────────────────────────────
 PLOT_BG    = "#161B22"
 PAPER_BG   = "#161B22"
 GRID_COLOR = "#21262D"
@@ -261,7 +267,7 @@ def load_data():
 
 df = load_data()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
+# ── Sidebar Interface ─────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
     <div style='font-family:"Instrument Sans",sans-serif; font-size:20px; font-weight:800;
@@ -324,7 +330,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── Filter data ───────────────────────────────────────────────────────────────
+# ── Filter Data Processing ────────────────────────────────────────────────────
 working_df = df.copy()
 if selected_countries:
     working_df = working_df[working_df["Country Name"].isin(selected_countries)]
@@ -335,7 +341,7 @@ filtered_df = working_df[working_df["Year"] == selected_year].copy()
 st.image("banner.png", use_container_width=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── KPI Row ───────────────────────────────────────────────────────────────────
+# ── KPI Execution Row ─────────────────────────────────────────────────────────
 if filtered_df.empty:
     st.warning("No data available for the selected filters. Please adjust your selection.")
     st.stop()
@@ -354,46 +360,55 @@ st.markdown(f"""
 <div class="section-title">Key Indicators — {selected_year}</div>
 """, unsafe_allow_html=True)
 
+# 4 Columns with Equalized Dynamic Fluid Sizing
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f"""
     <div class="kpi-card kpi-red">
-        <span class="kpi-icon">📖</span>
-        <div class="kpi-label">Avg. Learning Poverty</div>
-        <div class="kpi-value">{avg_lp:.1f}%</div>
+        <div>
+            <span class="kpi-icon">📖</span>
+            <div class="kpi-label">Avg. Learning Poverty</div>
+            <div class="kpi-value">{avg_lp:.1f}%</div>
+        </div>
         <div class="kpi-sub">Share of children below reading proficiency</div>
     </div>""", unsafe_allow_html=True)
 
 with c2:
     st.markdown(f"""
     <div class="kpi-card kpi-blue">
-        <span class="kpi-icon">🏫</span>
-        <div class="kpi-label">Avg. Pupils per Teacher</div>
-        <div class="kpi-value">{avg_ptr:.1f}</div>
-        <div class="kpi-sub">Average pupil-to-teacher ratio</div>
+        <div>
+            <span class="kpi-icon">🏫</span>
+            <div class="kpi-label">Avg. Pupils per Teacher</div>
+            <div class="kpi-value">{avg_ptr:.1f}</div>
+        </div>
+        <div class="kpi-sub">Average global pupil-to-teacher ratio limits</div>
     </div>""", unsafe_allow_html=True)
 
 with c3:
     st.markdown(f"""
     <div class="kpi-card kpi-green">
-        <span class="kpi-icon">🎓</span>
-        <div class="kpi-label">Avg. Trained Teachers</div>
-        <div class="kpi-value">{avg_tt:.1f}%</div>
-        <div class="kpi-sub">Teachers meeting national standards</div>
+        <div>
+            <span class="kpi-icon">🎓</span>
+            <div class="kpi-label">Avg. Trained Teachers</div>
+            <div class="kpi-value">{avg_tt:.1f}%</div>
+        </div>
+        <div class="kpi-sub">Teachers meeting national operating standards</div>
     </div>""", unsafe_allow_html=True)
 
 with c4:
     st.markdown(f"""
     <div class="kpi-card kpi-yellow">
-        <span class="kpi-icon">💰</span>
-        <div class="kpi-label">Avg. Gov. Expenditure</div>
-        <div class="kpi-value">{avg_ge:.1f}%</div>
-        <div class="kpi-sub">% of total govt. spending on education</div>
+        <div>
+            <span class="kpi-icon">💰</span>
+            <div class="kpi-label">Avg. Gov. Expenditure</div>
+            <div class="kpi-value">{avg_ge:.1f}%</div>
+        </div>
+        <div class="kpi-sub">% of total government spending on education</div>
     </div>""", unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# Stat pills — best/worst
+# Stat pills
 n_countries = len(filtered_df)
 avg_oos = filtered_df["children_out_of_school"].mean()
 avg_u5  = filtered_df["u5_mortality"].mean()
@@ -484,14 +499,11 @@ with col_map:
             bgcolor=PLOT_BG,
             projection_type="natural earth",
         ),
-        coloraxis_colorbar=dict(
-            title="LP (%)",
-            tickfont=dict(size=10, color=TEXT_COLOR),
-            title_font=dict(size=11, color=TEXT_COLOR),
-            bgcolor=PAPER_BG,
-            bordercolor="#30363D",
-            borderwidth=1,
-        ),
+        color_continuous_scale=[
+            [0, "#1a3a2a"], [0.25, "#2d6a4f"],
+            [0.5, "#E3B341"], [0.75, "#F78166"],
+            [1.0, "#7a0f00"]
+        ],
         height=380,
     )
     st.plotly_chart(fig_map, use_container_width=True)
@@ -548,7 +560,7 @@ with col_trend:
     
     fig_trend = go.Figure()
     
-    # Background: individual countries (faint)
+    # Background individual lines
     countries_to_plot = selected_countries if selected_countries else all_countries[:25]
     for country in countries_to_plot[:20]:
         cdf = working_df[working_df["Country Name"] == country].sort_values("Year")
@@ -561,7 +573,7 @@ with col_trend:
                 hoverinfo="skip",
             ))
     
-    # Confidence band
+    # Confidence background variance zone
     fig_trend.add_trace(go.Scatter(
         x=pd.concat([trend_data["Year"], trend_data["Year"][::-1]]),
         y=pd.concat([trend_data["max"], trend_data["min"][::-1]]),
@@ -665,7 +677,7 @@ with col_radar:
     top6    = filtered_df.nlargest(6, "learning_poverty")[radar_vars].mean()
     bottom6 = filtered_df.nsmallest(6, "learning_poverty")[radar_vars].mean()
     
-    # Normalize 0-1
+    # Normalization matrix scaling bounds
     df_norm = working_df[radar_vars]
     vmin, vmax = df_norm.min(), df_norm.max()
     top6_n    = (top6    - vmin) / (vmax - vmin)
@@ -738,7 +750,6 @@ with col_heat:
     fig_heat.update_layout(
         xaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False),
         yaxis=dict(tickfont=dict(size=9, color=TEXT_COLOR), showline=False, autorange="reversed"),
-        coloraxis_colorbar=dict(title="r", tickfont=dict(size=9, color=TEXT_COLOR)),
         height=380,
     )
     st.plotly_chart(fig_heat, use_container_width=True)
@@ -822,7 +833,7 @@ with col_box:
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ── Credits ───────────────────────────────────────────────────────────────────
+# ── Credits Footer ────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
     Dashboard created for <b>SDG 4 Tracking</b> · Data updated dynamically
