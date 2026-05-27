@@ -643,6 +643,27 @@ st.markdown(f"""
 <div class="section-title">What the Data Is Telling Us — And What Must Be Done</div>
 """, unsafe_allow_html=True)
 
+# ── Pre-compute conditional HTML strings (avoids f-string parsing issues) ────
+if trend_direction == "declining":
+    trend_msg = "Progress is real but dangerously slow — <b>the 2030 deadline is 5 years away</b>."
+elif trend_direction == "stagnating":
+    trend_msg = "<b>No meaningful progress has been made.</b> Without intervention, today's children will inherit tomorrow's illiteracy."
+else:
+    trend_msg = "<b>The situation is getting worse.</b> Inaction now means a deeper crisis by 2030."
+
+if selected_driver == "pupil_teacher_ratio":
+    driver_msg = "This means more teachers <i>alone</i> won't fix it — quality and training matter more."
+elif selected_driver == "trained_teachers":
+    driver_msg = "Every 10pp drop in trained teachers is associated with measurably higher LP. <b>Teacher quality is the single most actionable lever.</b>"
+elif selected_driver == "gov_expenditure":
+    driver_msg = "Spending more without targeting classrooms first is wasteful. Allocation quality matters as much as quantity."
+elif selected_driver == "children_out_of_school":
+    driver_msg = "Children out of school cannot learn to read. Re-enrollment campaigns must be the floor, not the ceiling."
+elif selected_driver == "u5_mortality":
+    driver_msg = "Children who survive but cannot read face a double burden of poverty. Health and education crises are inseparable."
+else:
+    driver_msg = "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."
+
 # ── Panel 1: The Scale of the Crisis ────
 st.markdown(f"""
 <div class="insight-panel">
@@ -682,9 +703,7 @@ st.markdown(f"""
             <div class="insight-card-stat">{trend_label}</div>
             <div class="insight-card-body">
                 The global average is <b>{trend_direction}</b> since 2010.
-                {"Progress is real but dangerously slow — <b>the 2030 deadline is 5 years away</b>." if trend_direction == "declining" else
-                 "<b>No meaningful progress has been made.</b> Without intervention, today's children will inherit tomorrow's illiteracy." if trend_direction == "stagnating" else
-                 "<b>The situation is getting worse.</b> Inaction now means a deeper crisis by 2030."}
+                {trend_msg}
             </div>
         </div>
         <div class="insight-card blue">
@@ -692,12 +711,7 @@ st.markdown(f"""
             <div class="insight-card-stat">r = {corr_value:.2f}</div>
             <div class="insight-card-body">
                 <b>{selected_driver_label}</b> shows a <b>{driver_relation} correlation</b> with learning poverty.
-                {"This means more teachers <i>alone</i> won't fix it — quality and training matter more." if selected_driver == "pupil_teacher_ratio" else
-                 "Every 10pp drop in trained teachers is associated with measurably higher LP. <b>Teacher quality is the single most actionable lever.</b>" if selected_driver == "trained_teachers" else
-                 "Spending more without targeting classrooms first is wasteful. Allocation quality matters as much as quantity." if selected_driver == "gov_expenditure" else
-                 "Children out of school cannot learn to read. Re-enrollment campaigns must be the floor, not the ceiling." if selected_driver == "children_out_of_school" else
-                 "Children who survive but cannot read face a double burden of poverty. Health and education crises are inseparable." if selected_driver == "u5_mortality" else
-                 "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."}
+                {driver_msg}
             </div>
         </div>
         <div class="insight-card green">
