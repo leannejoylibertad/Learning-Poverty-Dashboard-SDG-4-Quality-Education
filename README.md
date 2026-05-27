@@ -8,7 +8,7 @@ An interactive, regression-powered dashboard built with Streamlit, analyzing the
 
 ## 🔗 Live Dashboard
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://your-app-name.streamlit.app)
+[![Open in Streamlit](https://learning-poverty-dashboard-sdg-4-quality-education-hcvgojhh2b8.streamlit.app/)
 
 > Replace the link above with your actual Streamlit Cloud URL after deployment.
 
