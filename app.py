@@ -16,7 +16,7 @@ st.set_page_config(
 # ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&display=swap');
 
 /* ── Root Variables ── */
 :root {
@@ -38,7 +38,7 @@ st.markdown("""
 
 /* ── Base ── */
 html, body, [class*="css"] {
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: 'Instrument Sans', sans-serif !important;
     background-color: var(--bg) !important;
     color: var(--text) !important;
 }
@@ -101,7 +101,7 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 12px;
 }
 .hero-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-size: clamp(32px, 4vw, 54px);
     font-weight: 800;
     color: var(--text);
@@ -141,7 +141,7 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 6px;
 }
 .section-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-size: 24px;
     font-weight: 700;
     color: var(--text);
@@ -184,7 +184,7 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 8px;
 }
 .kpi-value {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-size: 36px;
     font-weight: 800;
     line-height: 1;
@@ -215,7 +215,7 @@ section[data-testid="stSidebar"] .stSlider label {
     min-width: 140px;
 }
 .stat-pill-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.stat-pill-value { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.stat-pill-value { font-family: 'Instrument Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
 .stat-pill-country { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* ── Chart Containers ── */
@@ -227,7 +227,7 @@ section[data-testid="stSidebar"] .stSlider label {
     margin-bottom: 20px;
 }
 .chart-title {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
     color: var(--text);
@@ -258,7 +258,7 @@ section[data-testid="stSidebar"] .stSlider label {
     right: 20px;
 }
 .insight-heading {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-size: 22px;
     font-weight: 800;
     color: var(--accent1);
@@ -376,7 +376,7 @@ df = load_data()
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style='font-family:Syne,sans-serif; font-size:20px; font-weight:800;
+    <div style='font-family:"Instrument Sans",sans-serif; font-size:20px; font-weight:800;
                 color:#F78166; margin-bottom:4px;'>📚 SDG 4 Explorer</div>
     <div style='font-size:12px; color:#8B949E; margin-bottom:20px; line-height:1.6;'>
         Quality Education · Learning Poverty
@@ -647,8 +647,8 @@ with col_bar:
     ))
     fig_bar.update_layout(**LAYOUT_BASE)
     fig_bar.update_layout(
-        xaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)", range=[0, 115]),
-        yaxis=dict(**AXIS_BASE, title_text="", showgrid=False),
+        xaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)", "range": [0, 115]},
+        yaxis={**AXIS_BASE, "title_text": "", "showgrid": False},
         height=380,
     )
     st.plotly_chart(fig_bar, use_container_width=True)
@@ -720,8 +720,8 @@ with col_trend:
     
     fig_trend.update_layout(**LAYOUT_BASE)
     fig_trend.update_layout(
-        xaxis=dict(**AXIS_BASE, title_text="Year"),
-        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        xaxis={**AXIS_BASE, "title_text": "Year"},
+        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
         height=360,
     )
     st.plotly_chart(fig_trend, use_container_width=True)
@@ -759,8 +759,8 @@ with col_scatter:
     )
     fig_scatter.update_layout(**LAYOUT_BASE)
     fig_scatter.update_layout(
-        xaxis=dict(**AXIS_BASE, title_text=selected_driver_label),
-        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        xaxis={**AXIS_BASE, "title_text": selected_driver_label},
+        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
         coloraxis_showscale=False,
         height=360,
     )
@@ -900,8 +900,8 @@ with col_multi:
 
     fig_multi.update_layout(**LAYOUT_BASE)
     fig_multi.update_layout(
-        xaxis=dict(**AXIS_BASE, title_text="Year"),
-        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        xaxis={**AXIS_BASE, "title_text": "Year"},
+        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
         height=360,
         legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5, font=dict(size=10)),
     )
@@ -921,50 +921,21 @@ with col_box:
         else:          return "2020–2023"
 
     working_df["Decade"] = working_df["Year"].apply(decade_label)
-    decade_order = ["2000–2004","2005–2009","2010–2014","2015–2019","2020–2023"]
-    decade_colors = ["#BC8CFF","#79C0FF","#56D364","#E3B341","#F78166"]
 
-    fig_box = go.Figure()
-    for dec, col in zip(decade_order, decade_colors):
-        df_dec = working_df[working_df["Decade"] == dec]
-        if not df_dec.empty:
-            fig_box.add_trace(go.Box(
-                y=df_dec["learning_poverty"],
-                name=dec,
-                marker_color=col,
-                boxpoints="outliers"
-            ))
-            
+    fig_box = px.box(
+        working_df,
+        x="Decade",
+        y="learning_poverty",
+        color="Decade",
+        category_orders={"Decade": ["2000–2004", "2005–2009", "2010–2014", "2015–2019", "2020–2023"]},
+        color_discrete_sequence=PALETTE
+    )
     fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
-        xaxis=dict(**AXIS_BASE, title_text="Time Period"),
-        yaxis=dict(**AXIS_BASE, title_text="Learning Poverty (%)"),
+        xaxis={**AXIS_BASE, "title_text": "Decade"},
+        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
+        showlegend=False,
         height=360,
-        showlegend=False
     )
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
-
-# ── Insights Block ────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="insight-outer">
-    <div class="insight-heading">💡 Strategic Insights & Policy Implications</div>
-    <div class="insight-body">
-        1. <b>The Quality Imperative:</b> Merely increasing school enrollment rates is insufficient. The strong correlation between 
-        <span class="highlight">Pupils Below Minimum Proficiency</span> and Learning Poverty indicates that classroom 
-        instructional quality and effective pedagogical practice are the primary bottlenecks.<br><br>
-        2. <b>Teacher Resource Allocation:</b> The <span class="highlight">Pupil-Teacher Ratio</span> remains a critical operational 
-        metric. Unfavorable ratios severely limit individual student attention, compounding early reading deficiencies in foundational stages.<br><br>
-        3. <b>Socioeconomic Intersections:</b> The heavy historical interaction with indicators such as <span class="highlight">Under-5 Mortality</span> suggests 
-        that educational achievement rates are fundamentally tied to wider structural improvements in child health, nutrition, and institutional development.
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# ── Footer Credits ─────────────────────────────────────────────────────────────
-st.markdown("""
-<div class="credits">
-    Dashboard developed for <b>SDG 4 Monitoring</b> · Data sources: World Bank Education Statistics, UNESCO Institute for Statistics & UNICEF.
-</div>
-""", unsafe_allow_html=True)
-
