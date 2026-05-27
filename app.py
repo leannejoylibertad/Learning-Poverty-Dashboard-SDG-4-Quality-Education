@@ -499,11 +499,6 @@ with col_map:
             bgcolor=PLOT_BG,
             projection_type="natural earth",
         ),
-        color_continuous_scale=[
-            [0, "#1a3a2a"], [0.25, "#2d6a4f"],
-            [0.5, "#E3B341"], [0.75, "#F78166"],
-            [1.0, "#7a0f00"]
-        ],
         height=380,
     )
     st.plotly_chart(fig_map, use_container_width=True)
