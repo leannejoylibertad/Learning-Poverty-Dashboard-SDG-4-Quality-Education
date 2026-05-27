@@ -144,7 +144,7 @@ section[data-testid="stSidebar"] .stSlider label {
     font-size: 11.5px;
     color: var(--muted);
     line-height: 1.4;
-    margin-top: auto; /* Pushes content down elegantly */
+    margin-top: auto; 
 }
 
 /* ── Stat Pills ── */
@@ -722,8 +722,8 @@ with col_heat:
 
     corr_vars = ["learning_poverty","pupil_teacher_ratio","trained_teachers",
                  "gov_expenditure","children_out_of_school","pupils_below_min_proficiency","u5_mortality"]
-    corr_labels = ["Learning\nPoverty","Pupil-Teacher\nRatio","Trained\nTeachers",
-                   "Gov.\nExpenditure","Out of\nSchool","Below Min.\nProf.","U5\nMortality"]
+    corr_labels = ["Learning\ Poverty","Pupil-Teacher\ Ratio","Trained\ Teachers",
+                   "Gov.\ Expenditure","Out of\ School","Below Min.\ Prof.","U5\ Mortality"]
     corr_matrix = working_df[corr_vars].corr().values
 
     fig_heat = go.Figure(go.Heatmap(
@@ -828,9 +828,95 @@ with col_box:
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
+
+# ── STRATEGIC RECOMMENDATIONS & CALL TO ACTION ─────────────────────────────────
+st.markdown(f"""
+<div class="section-label">Policy Framework</div>
+<div class="section-title">Strategic Insights & Call to Action — {selected_year}</div>
+""", unsafe_allow_html=True)
+
+# Evaluation variables for real-time adjustments
+high_classroom_density = avg_ptr > 25.0
+low_funding = avg_ge < 15.0
+
+priority_tags = []
+if avg_lp > 50: priority_tags.append("<span style='color:var(--accent1); font-weight:700;'>CRITICAL LEARNING POVERTY CRISIS</span>")
+if high_classroom_density: priority_tags.append("<span style='color:var(--accent2); font-weight:700;'>TEACHER SUPPLY SHORTAGE</span>")
+if low_funding: priority_tags.append("<span style='color:var(--accent4); font-weight:700;'>FISCAL UNDERINVESTMENT</span>")
+
+priority_status = " | ".join(priority_tags) if priority_tags else "<span style='color:var(--accent3); font-weight:700;'>STABLE MAINTENANCE MODE</span>"
+
+st.markdown(f"""
+<div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 30px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h3 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 18px; color: var(--text); font-weight: 700;">
+                🎯 SDG 4 Emergency Response Playbook
+            </h3>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--muted);">Data-driven structural interventions scaled for current selection profiles.</p>
+        </div>
+        <div style="background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; font-size: 11px; letter-spacing: 0.05em;">
+            SYSTEM STATUS: {priority_status}
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+        
+        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
+            <div style="font-size: 20px; margin-bottom: 10px;">📉</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+                1. Remediate Foundational Literacy
+            </div>
+            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
+                With global learning poverty hovering at <b style="color:var(--accent1);">{avg_lp:.1f}%</b>, countries must pivot curricula toward "Teaching at the Right Level" (TaRL). Focus strictly on foundational reading and universal math blocks before age 10 to eliminate systemic downstream elimination patterns.
+            </p>
+        </div>
+
+        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
+            <div style="font-size: 20px; margin-bottom: 10px;">👩‍🏫</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+                2. Optimize Instructional Capacity
+            </div>
+            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
+                Current metrics show an average density of <b style="color:var(--accent2);">{avg_ptr:.1f}</b> pupils per teacher. {"Action is required to aggressively recruit educators and expand structural training facilities to dilute high classroom crowding." if high_classroom_density else "Maintain this target balance while reinforcing specialized continuous professional development networks."}
+            </p>
+        </div>
+
+        <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 18px; display: flex; flex-direction: column;">
+            <div style="font-size: 20px; margin-bottom: 10px;">💎</div>
+            <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+                3. Safeguard Fiscal Allocations
+            </div>
+            <p style="font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; flex-grow: 1;">
+                Education allocations average <b style="color:var(--accent4);">{avg_ge:.1f}%</b> of public spending. Governments must structurally codify a minimum budget floor of 15-20% of public expenditure specifically ring-fenced for early-childhood infrastructure and rural teacher retention premiums.
+            </p>
+        </div>
+
+    </div>
+
+    <div style="margin-top: 24px; padding: 16px; background: rgba(247, 129, 102, 0.06); border: 1px dashed rgba(247, 129, 102, 0.3); border-radius: 12px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <div style="font-size: 24px;">📢</div>
+        <div style="flex: 1; min-width: 240px;">
+            <h4 style="margin: 0; font-family: 'Instrument Sans', sans-serif; font-size: 14px; color: var(--accent1); font-weight: 700;">
+                The 2030 Countdown Action Directive
+            </h4>
+            <p style="margin: 2px 0 0 0; font-size: 12px; color: var(--text); line-height: 1.5;">
+                A simple 10% reduction in learning poverty yields significant lifelong macroeconomic productivity gains. Civil societies, ministries, and global donors must instantly unify reporting schemas to coordinate intervention deployments where numbers peak highest.
+            </p>
+        </div>
+        <div style="padding: 8px 16px; background: var(--accent1); color: var(--bg); font-weight: 700; font-size: 12px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer;">
+            Download Blueprint
+        </div>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
+
 # ── Credits Footer ────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    Dashboard created for <b>SDG 4 Tracking</b> · Data updated dynamically
+    Dashboard created for <b>SDG 4 Tracking</b> · Data updated dynamically · System Engine Running Stable
 </div>
 """, unsafe_allow_html=True)
