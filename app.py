@@ -100,6 +100,7 @@ def load_data():
     return df
 
 df = load_data()
+year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -107,12 +108,6 @@ with st.sidebar:
     <div style='font-family:"Instrument Sans",sans-serif;font-size:20px;font-weight:800;color:#F78166;margin-bottom:4px;'>📚 SDG 4 Explorer</div>
     <div style='font-size:12px;color:#8B949E;margin-bottom:20px;line-height:1.6;'>Quality Education · Learning Poverty</div>
     """, unsafe_allow_html=True)
-    st.markdown("---")
-
-    year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
-    selected_year = st.slider("Select Year", year_min, year_max, 2019,
-                              help="Filter all charts and KPIs to this year")
-
     st.markdown("---")
 
     all_countries = sorted(df["Country Name"].unique())
@@ -153,15 +148,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-# ── Filter Data ───────────────────────────────────────────────────────────────
-working_df = df.copy()
-if selected_countries:
-    working_df = working_df[working_df["Country Name"].isin(selected_countries)]
-
-filtered_df = working_df[working_df["Year"] == selected_year].copy()
-
 # ── Header Banner ─────────────────────────────────────────────────────────────
-# Injects custom-designed banner or applies code fallback if asset is missing
 if os.path.exists("banner.png"):
     st.image("banner.png", use_container_width=True)
 else:
@@ -177,10 +164,29 @@ else:
     """, unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
+# ── Dynamic Time-Series Selection (The Single Source of Truth) ──────────────────
+st.markdown(f"""
+<div class="section-label">Spatial Distribution</div>
+<div class="section-title">Global Analysis Engine Profile Matrix</div>
+""", unsafe_allow_html=True)
+
+selected_year = st.slider(
+    "📅 Select Target Analytical Year", year_min, year_max, 2019,
+    key="choro_year",
+    help="Move this controller to update maps, metrics, indicators and regression charts across the environment."
+)
+
+# ── Filter Data ───────────────────────────────────────────────────────────────
+working_df = df.copy()
+if selected_countries:
+    working_df = working_df[working_df["Country Name"].isin(selected_countries)]
+
+filtered_df = working_df[working_df["Year"] == selected_year].copy()
+
 # ── Guard: empty filter ───────────────────────────────────────────────────────
 if filtered_df.empty:
     st.warning(f"No data for year {selected_year} with the current country filter. "
-               f"Try year 2019 or 2015 (highest coverage). Adjust the sidebar.")
+               f"Try year 2019 or 2015 (highest coverage). Adjust the controller.")
     st.info(f"Years with data: {sorted(df['Year'].unique())}")
     st.stop()
 
@@ -255,55 +261,40 @@ st.markdown(f"""
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
 # ── ROW 1: Choropleth + Bar ────────────────────────────────────────────────────
-st.markdown(f"""
-<div class="section-label">Spatial Distribution</div>
-<div class="section-title">Learning Poverty at a Glance — {selected_year}</div>
-""", unsafe_allow_html=True)
-
-choro_year = st.slider(
-    "📅 Choropleth Year", year_min, year_max, selected_year,
-    key="choro_year",
-    help="Change this slider to update the map independently of the KPI year"
-)
-df_choro = working_df[working_df["Year"] == choro_year].copy()
-
 col_map, col_bar = st.columns([3, 2])
 
 with col_map:
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
-    st.markdown(f'<div class="chart-title">🗺️ Global Learning Poverty Map — {choro_year}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="chart-title">🗺️ Global Learning Poverty Map — {selected_year}</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">Darker shades = higher share of children below reading proficiency. Gray = no data for that year.</div>', unsafe_allow_html=True)
 
-    if df_choro.empty:
-        st.warning(f"No data for year {choro_year}. Try 2019 or 2015.")
-    else:
-        fig_map = px.choropleth(
-            df_choro,
-            locations="Country Code",
-            color="learning_poverty",
-            hover_name="Country Name",
-            hover_data={
-                "learning_poverty"      : ":.1f",
-                "pupil_teacher_ratio"   : ":.1f",
-                "trained_teachers"      : ":.1f",
-                "Country Code"          : False,
-            },
-            color_continuous_scale=[
-                [0, "#1a3a2a"], [0.25, "#2d6a4f"],
-                [0.5, "#E3B341"], [0.75, "#F78166"], [1.0, "#7a0f00"]
-            ],
-            range_color=[0, 100],
-            labels={"learning_poverty": "Learning Poverty (%)"},
-        )
-        fig_map.update_layout(**LAYOUT_BASE)
-        fig_map.update_layout(
-            margin=dict(l=0, r=0, t=0, b=0),
-            geo=dict(showframe=False, showcoastlines=True, coastlinecolor="#30363D",
-                     showland=True, landcolor="#1C2333", showocean=True, oceancolor="#0D1117",
-                     showlakes=False, bgcolor=PLOT_BG, projection_type="natural earth"),
-            height=380,
-        )
-        st.plotly_chart(fig_map, use_container_width=True)
+    fig_map = px.choropleth(
+        filtered_df,
+        locations="Country Code",
+        color="learning_poverty",
+        hover_name="Country Name",
+        hover_data={
+            "learning_poverty"      : ":.1f",
+            "pupil_teacher_ratio"   : ":.1f",
+            "trained_teachers"      : ":.1f",
+            "Country Code"          : False,
+        },
+        color_continuous_scale=[
+            [0, "#1a3a2a"], [0.25, "#2d6a4f"],
+            [0.5, "#E3B341"], [0.75, "#F78166"], [1.0, "#7a0f00"]
+        ],
+        range_color=[0, 100],
+        labels={"learning_poverty": "Learning Poverty (%)"},
+    )
+    fig_map.update_layout(**LAYOUT_BASE)
+    fig_map.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        geo=dict(showframe=False, showcoastlines=True, coastlinecolor="#30363D",
+                 showland=True, landcolor="#1C2333", showocean=True, oceancolor="#0D1117",
+                 showlakes=False, bgcolor=PLOT_BG, projection_type="natural earth"),
+        height=380,
+    )
+    st.plotly_chart(fig_map, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_bar:
@@ -500,7 +491,7 @@ with col_heat:
 
     fig_heat = go.Figure(go.Heatmap(
         z=corr_matrix, x=corr_labels, y=corr_labels,
-        colorscale=[[0.0,"#0d4f8c"],[0.3,"#1a6bb0"],[0.5,"#161B22"],[0.7,"#8b2500"],[1.0,"#F78166"]],
+        colorscale=[[0.0,"#0d4f8c"],[0.3,"#1a6bb0"],[0.5 warmth,"#161B22"],[0.7,"#8b2500"],[1.0,"#F78166"]],
         zmin=-1, zmax=1,
         text=[[f"{v:.2f}" for v in row] for row in corr_matrix],
         texttemplate="%{text}",
