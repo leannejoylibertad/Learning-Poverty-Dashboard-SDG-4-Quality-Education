@@ -135,12 +135,8 @@ def load_data():
     df.columns = df.columns.str.strip()
     return df
 
-try:
-    df = load_data()
-    year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
-except FileNotFoundError:
-    st.error("Dataset 'cleaned_dataset.csv' not found. Please ensure the file is in the same directory.")
-    st.stop()
+df = load_data()
+year_min, year_max = int(df["Year"].min()), int(df["Year"].max())
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -540,74 +536,162 @@ with col_box:
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
     st.markdown('<div class="chart-title">📦 Distribution of Learning Poverty by Period</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-desc">How the spread of learning poverty has shifted across time periods.</div>', unsafe_allow_html=True)
-    
     def decade_label(y):
-        if y < 2010: return "2000-2009"
-        elif y < 2020: return "2010-2019"
-        else: return "2020-2023"
-        
-    box_df = working_df.copy()
-    box_df["Period"] = box_df["Year"].apply(decade_label)
-    
+        if y < 2005:   return "2000–2004"
+        elif y < 2010: return "2005–2009"
+        elif y < 2015: return "2010–2014"
+        else:          return "2015–2023"
+    wdf_decade = working_df.copy()
+    wdf_decade["Period"] = wdf_decade["Year"].apply(decade_label)
     fig_box = px.box(
-        box_df, x="Period", y="learning_poverty", color="Period",
-        color_discrete_sequence=["#79C0FF", "#E3B341", "#F78166"],
-        labels={"learning_poverty": "Learning Poverty (%)"}
-    )
-    
+        wdf_decade, x="Period", y="learning_poverty", color="Period",
+        category_orders={"Period":["2000–2004","2005–2009","2010–2014","2015–2023"]},
+        template="plotly_dark", color_discrete_sequence=PALETTE,
+        labels={"learning_poverty":"Learning Poverty (%)"})
     fig_box.update_layout(**LAYOUT_BASE)
     fig_box.update_layout(
-        xaxis={**AXIS_BASE, "title_text": ""},
-        yaxis={**AXIS_BASE, "title_text": "Learning Poverty (%)"},
-        showlegend=False, height=360
-    )
+        xaxis={**AXIS_BASE,"title_text":"Time Period"},
+        yaxis={**AXIS_BASE,"title_text":"Learning Poverty (%)"},
+        showlegend=False, height=360)
     st.plotly_chart(fig_box, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-# ── ROW 5: Key Insights & Action Items ────────────────────────────────────────
-st.markdown("""
-<div class="insight-panel">
-    <div class="insight-headline">Executive Insights & Policy Signals</div>
-    <div class="insight-subline">Key takeaways derived from the Huber Robust Regression and spatial analysis.</div>
-    
-    <div class="insight-grid">
-        <div class="insight-card purple">
-            <div class="insight-card-title">Strongest Predictor</div>
-            <div class="insight-card-stat">+22.74</div>
-            <div class="insight-card-body"><b>Under-5 Mortality</b> has the highest coefficient. Improving early childhood health is deeply intertwined with cognitive capacity.</div>
-        </div>
-        <div class="insight-card blue">
-            <div class="insight-card-title">Gov. Expenditure</div>
-            <div class="insight-card-stat">−3.64</div>
-            <div class="insight-card-body">Increased <b>Education Expenditure</b> correlates with reduced learning poverty, assuming institutional efficiency.</div>
-        </div>
-        <div class="insight-card green">
-            <div class="insight-card-title">Trained Teachers</div>
-            <div class="insight-card-stat">−2.82</div>
-            <div class="insight-card-body">Higher shares of <b>Trained Teachers</b> lower learning poverty, emphasizing quality over mere pupil-teacher ratios (which were insignificant).</div>
-        </div>
-    </div>
+# ── INSIGHTS ──────────────────────────────────────────────────────────────────
+corr_value      = working_df[["learning_poverty",selected_driver]].corr(method='spearman').iloc[0,1]
+driver_relation = "positive" if corr_value > 0 else "negative"
+insight_color   = "#F78166" if avg_lp > 50 else "#E3B341" if avg_lp > 30 else "#56D364"
+gap_to_target   = max(0, avg_lp - 10.0)
+critical_count  = len(filtered_df[filtered_df["learning_poverty"] >= 50])
+critical_pct    = (critical_count / n_countries * 100) if n_countries > 0 else 0
+urgency_pct     = min(100, avg_lp)
+tt_gap          = max(0, 80.0 - avg_tt)
 
-    <div class="proxy-box">
-        <div class="proxy-box-title">Systemic Vulnerability Proxy</div>
-        <div class="proxy-box-body">
-            The dominance of the <b>Under-5 Mortality</b> variable suggests it acts as a composite proxy for broader systemic issues: severe poverty, malnutrition, weak state institutions, and lack of foundational infrastructure. Addressing learning poverty requires multi-sectoral interventions, not just isolated education policies.
-        </div>
-        <div class="proxy-tags">
-            <span class="proxy-tag">Health & Nutrition</span>
-            <span class="proxy-tag">Poverty Alleviation</span>
-            <span class="proxy-tag">Institutional Capacity</span>
-        </div>
-    </div>
-</div>
+trend_recent = working_df[working_df["Year"] >= 2010].groupby("Year")["learning_poverty"].mean()
+if len(trend_recent) >= 2:
+    lp_change = trend_recent.iloc[-1] - trend_recent.iloc[0]
+    trend_direction = "declining" if lp_change < -2 else "stagnating" if abs(lp_change) <= 2 else "worsening"
+    trend_label     = f"{'↓' if lp_change < 0 else '↑'} {abs(lp_change):.1f} pp since 2010"
+else:
+    trend_direction = "unclear"
+    trend_label     = "Insufficient trend data"
+
+st.markdown(f"""
+<div class="section-label">Evidence-Based Insights</div>
+<div class="section-title">What the Data Is Telling Us — And What Must Be Done</div>
 """, unsafe_allow_html=True)
 
-# ── Footer / Credits ────────────────────────────────────────────────────────
+# Conditional text
+if trend_direction == "declining":
+    trend_msg = "Progress is real but dangerously slow — <b>the 2030 deadline is fewer than 5 years away</b>."
+elif trend_direction == "stagnating":
+    trend_msg = "<b>No meaningful progress has been made.</b> Without intervention, today's children will inherit tomorrow's illiteracy."
+else:
+    trend_msg = "<b>The situation is getting worse.</b> Inaction now means a deeper crisis by 2030."
+
+if selected_driver == "trained_teachers":
+    driver_msg = "Every 10pp drop in trained teachers is associated with measurably higher LP. <b>Teacher quality is the single most actionable lever within education policy.</b>"
+elif selected_driver == "gov_expenditure":
+    driver_msg = "Spending more without targeting classrooms first is wasteful. Allocation quality matters as much as quantity."
+elif selected_driver == "u5_mortality":
+    driver_msg = "This is the model's strongest predictor. But it's a proxy — see the explanation below for what it truly captures."
+elif selected_driver == "children_out_of_school":
+    driver_msg = "Children out of school cannot learn to read. Re-enrollment campaigns must be the floor, not the ceiling."
+else:
+    driver_msg = "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."
+
+# Panel 1 — Scale of Crisis
+panel1_html = (
+'<div class="insight-panel">'
+f'<div class="insight-headline" style="color:{insight_color};">{avg_lp:.1f}% of children cannot read a simple text by age 10.</div>'
+f'<div class="insight-subline">In {selected_year}, across {n_countries} countries, learning poverty sits at <b style="color:{insight_color}">{avg_lp:.1f}%</b> — a gap of <b style="color:#F78166">{gap_to_target:.1f} percentage points</b> from the SDG 4 target of ≤10%.</div>'
+f'<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Distance from SDG 4 Target (≤10%) — Current avg: {avg_lp:.1f}%</div>'
+f'<div class="urgency-bar"><div class="urgency-fill red" style="width:{urgency_pct:.1f}%;"></div></div>'
+'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);"><span>0%</span><span style="color:#56D364;">SDG Target: 10%</span><span>100%</span></div></div>'
+'<div class="insight-grid">'
+f'<div class="insight-card red"><div class="insight-card-title">🚨 Critical Cases</div><div class="insight-card-stat">{critical_count} countries</div><div class="insight-card-body"><b>{critical_pct:.0f}% of countries</b> in this view have learning poverty above 50% — more than half their children will enter adulthood unable to read proficiently.</div></div>'
+f'<div class="insight-card yellow"><div class="insight-card-title">📉 Trend Signal</div><div class="insight-card-stat">{trend_label}</div><div class="insight-card-body">The global average is <b>{trend_direction}</b> since 2010. {trend_msg}</div></div>'
+f'<div class="insight-card blue"><div class="insight-card-title">🔗 Driver Signal</div><div class="insight-card-stat">r = {corr_value:.2f}</div><div class="insight-card-body"><b>{selected_driver_label}</b> shows a <b>{driver_relation} correlation</b> with learning poverty. {driver_msg}</div></div>'
+f'<div class="insight-card green"><div class="insight-card-title">✅ What Works</div><div class="insight-card-stat">{best} ({best_v:.1f}%)</div><div class="insight-card-body"><b>{best}</b> achieves the lowest learning poverty at <b>{best_v:.1f}%</b>. Compare its trained teacher rate and expenditure profile — the gap is a policy choice, not a destiny.</div></div>'
+'</div>'
+'</div>'
+)
+st.markdown(panel1_html, unsafe_allow_html=True)
+
+# ── NEW: U5 Mortality Proxy Explanation Panel ─────────────────────────────────
+u5_corr = working_df[["learning_poverty","u5_mortality"]].corr(method='spearman').iloc[0,1]
+
+proxy_panel_html = (
+'<div class="insight-panel">'
+'<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">'
+'<span style="font-size:28px;">🏥</span>'
+'<div class="insight-headline" style="color:#BC8CFF;margin-bottom:0;">Why Does Child Mortality Predict Learning Poverty?</div>'
+'</div>'
+f'<div class="insight-subline">Under-5 mortality is the <b style="color:#BC8CFF">strongest driver</b> in the Huber regression model (β = +22.74, p &lt; 0.001, Spearman r = {u5_corr:.2f}). This is a deliberate, literature-backed choice — not a coincidence.</div>'
+'<div class="insight-grid">'
+'<div class="insight-card purple">'
+'<div class="insight-card-title">📌 What It Captures</div>'
+'<div class="insight-card-stat">Composite Proxy</div>'
+'<div class="insight-card-body">High child mortality doesn\'t directly fail reading tests. It signals an entire environment: <b>extreme poverty, malnutrition, weak public health, poor sanitation,</b> and <b>low institutional capacity</b> — all of which also crush children\'s capacity to learn.</div>'
+'</div>'
+'<div class="insight-card purple">'
+'<div class="insight-card-title">🧠 The Mechanism</div>'
+'<div class="insight-card-stat">Brain Development</div>'
+'<div class="insight-card-body">Alderman et al. (2006) show that <b>early childhood malnutrition</b> — endemic in high-mortality settings — causes lasting damage to cognitive development and school performance. Children weakened by preventable disease cannot learn effectively.</div>'
+'</div>'
+'<div class="insight-card purple">'
+'<div class="insight-card-title">📚 Literature Basis</div>'
+'<div class="insight-card-stat">Cross-Sectoral</div>'
+'<div class="insight-card-body">UNICEF/WHO/World Bank (2020) confirm the inseparable link between child health environments and educational attainment. This is why the UN frames SDGs as interconnected — you cannot solve SDG 4 without also addressing SDG 3 (health) and SDG 1 (poverty).</div>'
+'</div>'
+'<div class="insight-card purple">'
+'<div class="insight-card-title">🎯 Policy Implication</div>'
+'<div class="insight-card-stat">Beyond Schools</div>'
+'<div class="insight-card-body">Education policy alone is <b>insufficient</b>. Countries with high child mortality need <b>joint health-education-poverty budgeting</b>. Reducing u5_mortality through nutrition programs, clean water access, and healthcare will directly improve learning outcomes.</div>'
+'</div>'
+'</div>'
+'<div class="proxy-box">'
+'<div class="proxy-box-title">🔬 What U5 Mortality Is a Proxy For</div>'
+'<div class="proxy-box-body">When a country has high child mortality, it is almost certainly also experiencing: <b>chronic malnutrition</b> (stunting impairs brain development), <b>extreme income poverty</b> (children work instead of studying), <b>weak school infrastructure</b> (no trained teachers, no materials), <b>low parental education</b> (less support at home), and <b>frequent illness and absenteeism</b> (children miss school). The model captures all of these through a single, measurable, widely-available indicator.</div>'
+'<div class="proxy-tags">'
+'<span class="proxy-tag">Malnutrition & Stunting</span>'
+'<span class="proxy-tag">Extreme Poverty</span>'
+'<span class="proxy-tag">Weak Institutions</span>'
+'<span class="proxy-tag">Low Parental Education</span>'
+'<span class="proxy-tag">Poor Sanitation</span>'
+'<span class="proxy-tag">Chronic Illness & Absenteeism</span>'
+'<span class="proxy-tag">SDG 1 · SDG 2 · SDG 3 Interconnect</span>'
+'</div>'
+'</div>'
+'</div>'
+)
+st.markdown(proxy_panel_html, unsafe_allow_html=True)
+
+# Panel 3 — Action
+panel2_html = (
+'<div class="insight-panel">'
+'<div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">🎯 From Evidence to Action — What Policymakers Must Prioritize</div>'
+'<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">The Huber regression model identifies the levers with the strongest statistical signal. The following actions are ranked by model weight and policy feasibility.</div>'
+'<div class="action-row">'
+f'<div class="action-item"><div class="action-icon">🧑‍🏫</div><div class="action-text"><b>Train every teacher, not just hire more</b>Average trained teacher coverage is <b>{avg_tt:.1f}%</b> — a gap of <b>{tt_gap:.1f} pp</b> from the 80% benchmark. Untrained teachers are a significant model predictor of high LP. Pre-service and in-service training must be mandatory, funded, and monitored.</div></div>'
+f'<div class="action-item"><div class="action-icon">💸</div><div class="action-text"><b>Spend smarter, not just more</b>Average gov. expenditure is <b>{avg_ge:.1f}%</b> of GDP per capita. Redirect budgets toward foundational literacy programs in grades 1–3, where intervention has the highest ROI.</div></div>'
+f'<div class="action-item"><div class="action-icon">🏥</div><div class="action-text"><b>Treat health as an education investment</b>U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is the strongest model predictor. Nutrition programs, clean water, and basic healthcare directly improve children\'s cognitive readiness. Joint health-education budgeting is not optional.</div></div>'
+'<div class="action-item"><div class="action-icon">📊</div><div class="action-text"><b>Close the data gap</b>Multiple countries show missing LP data for recent years. Without annual, standardized assessments aligned to PIRLS/EGRA standards, governments cannot course-correct in time for 2030.</div></div>'
+'</div>'
+'<div style="margin-top:22px;padding:16px;background:rgba(247,129,102,0.07);border-radius:10px;border:1px solid rgba(247,129,102,0.2);">'
+'<div style="font-size:13px;font-weight:700;color:#F78166;margin-bottom:6px;">⏰ The 2030 Clock Is Running</div>'
+'<div style="font-size:12.5px;color:var(--muted);line-height:1.7;">SDG 4 set a 2030 deadline to ensure all children can read by age 10. With <b style="color:var(--text)">fewer than 5 years remaining</b>, the window for course-correction is closing fast. A child starting primary school today will be 10 years old in 2030. The decisions made by governments this year will determine whether that child can read — or becomes part of the next generation\'s learning poverty statistic. <b style="color:#F78166">Data without action is just a number. Act on what you see here.</b></div>'
+'</div>'
+'</div>'
+)
+st.markdown(panel2_html, unsafe_allow_html=True)
+
+# ── Credits ───────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="credits">
-    <b>Learning Poverty Dashboard</b> · SDG 4 (Quality Education) Analysis<br>
-    Data: World Bank & UNESCO Institute for Statistics · Built with Streamlit & Plotly
+    Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational
 </div>
 """, unsafe_allow_html=True)
+
+
