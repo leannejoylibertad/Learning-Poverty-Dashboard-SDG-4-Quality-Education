@@ -100,11 +100,9 @@ AXIS_BASE = dict(
 # ── Load Data ─────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_data():
-    # Setup fallbacks or generate synthetic dataframe if CSV doesn't exist locally
     if os.path.exists("cleaned_dataset.csv"):
         df = pd.read_csv("cleaned_dataset.csv")
     else:
-        # Prevents crashing if executed in empty directory paths
         np.random.seed(42)
         years = list(range(2000, 2024))
         countries = [("United States", "USA"), ("Kenya", "KEN"), ("India", "IND"), ("Brazil", "BRA"), ("Nigeria", "NGA")]
@@ -383,7 +381,6 @@ with col_radar:
     radar_labels = ["Pupil-Teacher\nRatio","Trained\nTeachers","Gov.\nExpenditure",
                     "Out of\nSchool","Below Min.\nProficiency","U5\nMortality"]
     if len(filtered_df) >= 3:
-        # Lowered constraint to >=3 to accommodate smaller filtered variations gracefully
         n_elements = min(6, len(filtered_df))
         top6    = filtered_df.nlargest(n_elements,"learning_poverty")[radar_vars].mean()
         bottom6 = filtered_df.nsmallest(n_elements,"learning_poverty")[radar_vars].mean()
@@ -443,103 +440,60 @@ with col_u5:
             st.info("Insufficient synchronous data points to render mortality signal framework.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-
-# ── REGRESSION VARIABLE FRAMEWORK & REFERENCES ───────────────────────────────
+# ── Key Literature & Reports ─────────────────────────────────────────────────
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
 st.markdown("""
-<div class="section-label">Data Architecture & Verification</div>
-<div class="section-title">Data Sources, Indicators & Literature Framework</div>
+<div class="section-label">References</div>
+<div class="section-title">Key Literature & Reports</div>
 """, unsafe_allow_html=True)
 
-# Build comprehensive multi-perspective tabs to store metadata and empirical research records cleanly
-tabs = st.tabs(["📦 Datasets & Indicators Dictionary", "🎓 Econometric Literature Matrix", "📜 Complete Academic Citations"])
+literature = [
+    {
+        "authors": "World Bank (2022)",
+        "title": "The State of Global Learning Poverty",
+        "description": "Flagship report defining the learning poverty metric and the SDG 4 target of under 10% by 2030. Core reference for this dashboard's response variable.",
+        "link_label": "worldbank.org → State of Global Learning Poverty",
+        "link": "https://www.worldbank.org/en/topic/education/publication/state-of-global-learning-poverty"
+    },
+    {
+        "authors": "Alderman, H., Hoddinott, J., & Kinsey, B. (2006)",
+        "title": "Long term consequences of early childhood malnutrition",
+        "description": "Oxford Economic Papers. Demonstrates that early malnutrition in high-mortality settings produces lasting deficits in cognitive development and school attainment — basis for using u5_mortality as a composite proxy.",
+        "link_label": "academic.oup.com → Oxford Economic Papers, Vol. 58(3)",
+        "link": "https://academic.oup.com/oep/article/58/3/450/2361729"
+    },
+    {
+        "authors": "UNICEF, WHO & World Bank (2023)",
+        "title": "Levels & Trends in Child Mortality Report",
+        "description": "Annual joint report documenting under-5 mortality trends globally, confirming the overlap between high child mortality environments and poor educational outcomes (SDG 3–SDG 4 interconnect).",
+        "link_label": "data.unicef.org → Levels & Trends in Child Mortality",
+        "link": "https://data.unicef.org/resources/levels-and-trends-in-child-mortality/"
+    },
+    {
+        "authors": "UNESCO (2023)",
+        "title": "Global Education Monitoring (GEM) Report",
+        "description": "Annual report tracking global progress toward SDG 4, including foundational learning outcomes, teacher training gaps, and public education spending trends across low- and middle-income countries.",
+        "link_label": "unesco.org → Global Education Monitoring Report",
+        "link": "https://www.unesco.org/gem-report/"
+    },
+    {
+        "authors": "Glewwe, P. & Muralidharan, K. (2016)",
+        "title": "Improving Education Outcomes in Developing Countries",
+        "description": "Handbook of the Economics of Education, Vol. 5. Evidence review on teacher training, class size, and expenditure effectiveness — basis for trained teachers and gov. expenditure policy recommendations.",
+        "link_label": "sciencedirect.com → Handbook of Economics of Education, Vol. 5",
+        "link": "https://www.sciencedirect.com/handbook/handbook-of-the-economics-of-education/vol/5"
+    },
+]
 
-with tabs[0]:
-    st.markdown("""
-    This structural dictionary maps data-point endpoints to underlying institutional indicators, identifying sources, variables, and cross-framework alignments.
-    """)
-    
-    dict_data = {
-        "Indicator Label": [
-            "Learning Poverty Rate", "Under-5 Mortality Rate", "Trained Teachers (%)", 
-            "Govt. Education Expenditure", "Pupil-Teacher Ratio", "Children Out of School (%)", 
-            "Pupils Below Minimum Proficiency", "SDG 4 Global Framework"
-        ],
-        "Variable Identifier": [
-            "`learning_poverty`", "`u5_mortality`", "`trained_teachers`", 
-            "`gov_expenditure`", "`pupil_teacher_ratio`", "`children_out_of_school`", 
-            "`pupils_below_min_proficiency`", "—"
-        ],
-        "Source Institution": [
-            "World Bank & UNESCO UIS", "World Bank WDI", "UNESCO UIS", 
-            "World Bank WDI", "UNESCO UIS / World Bank WDI", "UNESCO UIS", 
-            "UNESCO UIS", "United Nations"
-        ],
-        "Functional Core Definition": [
-            "Share of children unable to read and understand a simple text by age 10 (harmonized from PIRLS, PASEC, EGRA assessments).",
-            "Deaths of children under 5 per 1,000 live births. Acts as the strongest health/socioeconomic predictor of learning poverty in this model.",
-            "Percentage of primary school teachers who have received at least the minimum organized teacher training pre-service or in-service required per national standards.",
-            "Government expenditure per primary student expressed as a percentage of GDP per capita.",
-            "Average headcount number of pupils per teacher at the primary level.",
-            "Percentage of primary-school-age children who are not enrolled in any level of formal primary or secondary education.",
-            "Share of pupils at the end-of-primary benchmark who have not achieved baseline minimum reading proficiency scores (SDG 4.1.1).",
-            "Sustainable Development Goal 4 Framework: Ensure inclusive and equitable quality education and promote lifelong learning opportunities for all by 2030."
-        ],
-        "Digital Vault URL": [
-            "datatopics.worldbank.org/education/wbe", "data.worldbank.org/indicator/SH.DYN.MORT", "data.worldbank.org/indicator/SE.PRM.TCAQ.ZS",
-            "data.worldbank.org/indicator/SE.XPD.PRIM.PC.ZS", "data.worldbank.org/indicator/SE.PRM.ENRL.TC.ZS", "data.worldbank.org/indicator/SE.PRM.UNER.ZS",
-            "data.worldbank.org/indicator/SE.LPV.PRIM.SD", "sdgs.un.org/goals/goal4"
-        ]
-    }
-    
-    st.table(pd.DataFrame(dict_data))
-
-with tabs[1]:
-    st.markdown("### Structural Regression Framework & Theoretical Hypotheses")
-    
-    lit_matrix = {
-        "Variable Class": ["`pupil_teacher_ratio`", "`trained_teachers`", "`gov_expenditure`", "`u5_mortality`"],
-        "Expected Direction": ["(+) Positive Effect", "(-) Negative Effect", "(-) Negative Effect", "(+) Positive Effect"],
-        "Empirical Justification Summary": [
-            "High ratios create over-crowded, resource-strained environments that restrict targeted personalized interaction, directly lower proficiency metrics, and expand educational deprivations.",
-            "Formal structural instruction and specialized pedagogical training stand out as the primary high-leverage internal factor capable of raising baseline learning and reading efficiency.",
-            "Sustained, structured fiscal allocations per student enhance learning environments, repair crumbling school infrastructure, secure modern educational materials, and lower long-term poverty ceilings.",
-            "Serves as a robust structural macro-proxy for severe early childhood multi-dimensional distress; poor health and endemic childhood malnutrition heavily impair ongoing cognitive development."
-        ],
-        "Foundational Model Citations": [
-            "Angrist & Lavy (1999); Duflo, Dupas & Kremer (2015)",
-            "Rivkin, Hanushek & Kain (2005); Araujo et al. (2016)",
-            "Jackson, Johnson & Persico (2016); Al-Samarrai (2006)",
-            "Alderman, Hoddinott & Kinsey (2006); Glewwe, Jacoby & King (2001)"
-        ]
-    }
-    st.table(pd.DataFrame(lit_matrix))
-    
-    st.markdown("---")
-    st.markdown("#### Expanded Variable Dynamics & Literature Foundations")
-    
-    st.markdown("""
-    * **`pupil_teacher_ratio`** — Reducing class sizes has a proven positive effect on primary-level reading and math scores. *Angrist & Lavy (1999)* established this using a natural experiment in Israel (Maimonides' Rule), while *Duflo, Dupas, and Kremer (2015)* demonstrated in Kenyan primary schools that lowering pupil-teacher ratios through contract teachers significantly improves learning outcomes when local school governance and incentives are appropriately aligned.
-    * **`trained_teachers`** — Teacher quality is the most influential within-school factor on student achievement. *Rivkin, Hanushek, and Kain (2005)* demonstrated the foundational impact of teacher quality on academic outcomes. Furthermore, *Araujo et al. (2016)* provided rigorous evidence from primary settings in developing nations that specific teacher training and classroom observation dynamics directly reduce the likelihood of children falling behind minimum proficiency thresholds.
-    * **`gov_expenditure`** — The long-term impact of government spending on education is substantial. *Jackson, Johnson, and Persico (2016)* provided robust evidence that increases in per-pupil spending directly improve educational attainment and lower adult poverty rates. In a cross-country developmental context, *Al-Samarrai (2006)* highlighted that sufficient public expenditure is essential to expand access and quality, provided there is strong institutional capacity to use the funds effectively.
-    * **`u5_mortality`** — This variable acts as a robust macro-level proxy for the broader socioeconomic and early childhood health environment. *Alderman, Hoddinott, and Kinsey (2006)* showed that early childhood malnutrition—endemic in high-mortality settings—severely limits later cognitive development. Similarly, *Glewwe, Jacoby, and King (2001)* demonstrated longitudinally that early nutritional deficiencies delay enrollment and depress academic performance, directly driving up learning poverty.
-    """)
-
-with tabs[2]:
-    st.markdown("### Institutional Literature & Citations (APA Formatted)")
-    st.markdown("""
-    > * Al-Samarrai, S. (2006). Achieving education for all: How much does money matter? *World Development*, 34(4), 643–658.
-    > * Alderman, H., Hoddinott, J., & Kinsey, B. (2006). Long-term consequences of early childhood malnutrition. *Oxford Economic Papers*, 58(3), 450–474.
-    > * Angrist, J. D., & Lavy, V. (1999). Using Maimonides' rule to estimate the effect of class size on scholastic achievement. *The Quarterly Journal of Economics*, 114(2), 533–575.
-    > * Araujo, M. C., Carneiro, P., Cruz-Aguayo, Y., & Schady, N. (2016). Teacher quality and learning outcomes in kindergarten. *The Quarterly Journal of Economics*, 131(3), 1415–1453.
-    > * Bloom, D. E., Canning, D., & Sevilla, J. (2004). The effect of health on economic growth: A production function approach. *World Development*, 32(1), 1–13.
-    > * Duflo, E., Dupas, P., & Kremer, M. (2015). School governance, teacher incentives, and pupil-teacher ratios: Experimental evidence from Kenyan primary schools. *Journal of Public Economics*, 123, 92–110.
-    > * Glewwe, P., Jacoby, H. G., & King, E. M. (2001). Early childhood nutrition and academic achievement: a longitudinal analysis. *Journal of Public Economics*, 81(3), 345–368.
-    > * Jackson, C. K., Johnson, R. C., & Persico, C. (2016). The effects of school spending on educational and economic outcomes: Evidence from school finance reforms. *The Quarterly Journal of Economics*, 131(1), 157–218.
-    > * Rivkin, S. G., Hanushek, E. A., & Kain, J. F. (2005). Teachers, schools, and academic achievement. *Econometrica*, 73(2), 417–458.
-    > * World Bank & UNESCO. (2019). *Ending Learning Poverty: What Will It Take?* Washington, DC: World Bank.
-    """)
+for ref in literature:
+    st.markdown(f"""
+    <div style="background:#161B22;border:1px solid #30363D;border-left:3px solid #79C0FF;border-radius:10px;padding:18px 22px;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:700;color:#E6EDF3;margin-bottom:4px;">{ref['authors']} — <em>{ref['title']}</em></div>
+        <div style="font-size:12.5px;color:#8B949E;line-height:1.6;margin-bottom:8px;">{ref['description']}</div>
+        <a href="{ref['link']}" target="_blank" style="font-size:12px;color:#79C0FF;text-decoration:none;">{ref['link_label']}</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ── Footer Credits ────────────────────────────────────────────────────────────
 st.markdown(f"""
