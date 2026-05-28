@@ -440,6 +440,67 @@ with col_u5:
             st.info("Insufficient synchronous data points to render mortality signal framework.")
     st.markdown('</div>', unsafe_allow_html=True)
 
+# ── Evidence-Based Insights ───────────────────────────────────────────────────
+st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
+
+st.markdown("""
+<div class="section-label">Policy Implications</div>
+<div class="section-title">Evidence-Based Insights</div>
+<div style="font-size:13.5px;color:#8B949E;line-height:1.8;margin-top:-12px;margin-bottom:20px;max-width:820px;">
+Key actionable findings derived from the Huber Robust Regression model. These insights reflect the strongest statistically significant predictors of learning poverty across 75 countries.
+</div>
+""", unsafe_allow_html=True)
+
+insights = [
+    {
+        "rank": "01",
+        "color": "#F78166",
+        "grad": "var(--grad1)",
+        "icon": "🏥",
+        "title": "Under-5 Mortality is the #1 Predictor",
+        "beta": "β = +22.74",
+        "body": "A 10-unit increase in under-5 mortality rate is associated with a ~22.7 percentage point rise in learning poverty. High child mortality reflects systemic deprivation — poor nutrition, health infrastructure, and household instability — that collectively suppress cognitive development long before children enter school.",
+        "action": "Policy Lever: Integrated early childhood health and nutrition programs yield outsized returns on educational outcomes."
+    },
+    {
+        "rank": "02",
+        "color": "#56D364",
+        "grad": "var(--grad3)",
+        "icon": "💰",
+        "title": "Government Education Expenditure Reduces LP",
+        "beta": "β = −3.64",
+        "body": "Each additional percentage point of GDP per capita spent on primary education is associated with a ~3.6 point reduction in learning poverty. Sustained fiscal commitment enables better infrastructure, learning materials, and teacher support systems — compounding over time.",
+        "action": "Policy Lever: Protecting education budgets during fiscal shocks is critical to maintaining learning outcome trajectories."
+    },
+    {
+        "rank": "03",
+        "color": "#79C0FF",
+        "grad": "var(--grad2)",
+        "icon": "🎓",
+        "title": "Trained Teachers Drive Proficiency Gains",
+        "beta": "β = −2.82",
+        "body": "A 10-point increase in the share of trained teachers is associated with a ~2.8 point reduction in learning poverty. Teacher quality is the most influential within-school factor — structured pedagogical training directly reduces the likelihood of children falling below minimum reading proficiency thresholds.",
+        "action": "Policy Lever: Pre-service and in-service teacher training programs are among the highest-ROI education investments."
+    },
+]
+
+cols = st.columns(3)
+for i, ins in enumerate(insights):
+    with cols[i]:
+        st.markdown(f"""
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;height:100%;box-sizing:border-box;">
+            <div style="position:absolute;top:0;left:0;right:0;height:4px;background:{ins['grad']};"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                <span style="font-size:22px;">{ins['icon']}</span>
+                <span style="font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:{ins['color']};">Finding #{ins['rank']}</span>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:#E6EDF3;margin-bottom:6px;line-height:1.4;">{ins['title']}</div>
+            <div style="display:inline-block;font-size:11px;font-weight:700;background:rgba(255,255,255,0.07);border-radius:6px;padding:2px 10px;color:{ins['color']};margin-bottom:12px;">{ins['beta']}</div>
+            <div style="font-size:12.5px;color:#8B949E;line-height:1.7;margin-bottom:14px;">{ins['body']}</div>
+            <div style="font-size:11.5px;color:#E6EDF3;background:rgba(255,255,255,0.04);border-left:3px solid {ins['color']};border-radius:4px;padding:8px 12px;line-height:1.6;">{ins['action']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
 # ── Key Literature & Reports ─────────────────────────────────────────────────
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
