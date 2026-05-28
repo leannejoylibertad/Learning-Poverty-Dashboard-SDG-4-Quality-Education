@@ -710,7 +710,6 @@ _refs_html = """
 
 <div class="ref-wrap">
 
-  </div>
 
   <div class="ref-section-label" style="color:#BC8CFF;">📚 Key Literature & Reports</div>
   <div class="ref-list">
@@ -745,7 +744,7 @@ _refs_html = """
       <a href="https://www.sciencedirect.com/science/article/pii/S1574069216000039" target="_blank">sciencedirect.com → Handbook of Economics of Education, Vol. 5</a>
     </div>
 
-  </div>
+
 
   <div class="ref-credits">
     Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational ·
@@ -755,5 +754,4 @@ _refs_html = """
 """
 
 components.html(_refs_html, height=1100, scrolling=False)
-
 
