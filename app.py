@@ -182,7 +182,7 @@ with st.sidebar:
         ✅ gov_expenditure (β = −3.64)<br>
         ✅ trained_teachers (β = −2.82)<br>
         <b>Data Coverage</b><br>
-        75 countries · 2000–2023 (no 2021)
+        75 countries · 2000–2023 
     </div>
     """, unsafe_allow_html=True)
 
