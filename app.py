@@ -730,7 +730,7 @@ components.html("""
   }
   .ref-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
     margin-bottom: 28px;
   }
@@ -752,8 +752,17 @@ components.html("""
     font-size: 12px;
     color: #8B949E;
     line-height: 1.7;
+    word-break: break-all;
+    overflow-wrap: break-word;
   }
-  .ref-card-body a { color: #58A6FF; text-decoration: none; }
+  .ref-card-body a {
+    color: #58A6FF;
+    text-decoration: none;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
+  }
   .ref-card-body a:hover { text-decoration: underline; }
 
   .ref-list {
@@ -781,7 +790,15 @@ components.html("""
     line-height: 1.6;
     margin-bottom: 6px;
   }
-  .ref-lit a { font-size: 11.5px; color: #58A6FF; text-decoration: none; }
+  .ref-lit a {
+    font-size: 11.5px;
+    color: #58A6FF;
+    text-decoration: none;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    display: inline-block;
+    max-width: 100%;
+  }
   .ref-lit a:hover { text-decoration: underline; }
 
   .ref-credits {
