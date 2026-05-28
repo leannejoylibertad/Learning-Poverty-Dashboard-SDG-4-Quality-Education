@@ -102,6 +102,28 @@ section[data-testid="stSidebar"] .stSlider label{font-family:'Instrument Sans',s
 .proxy-box-body b{color:var(--text);}
 .proxy-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
 .proxy-tag{background:rgba(188,140,255,0.12);border:1px solid rgba(188,140,255,0.3);border-radius:20px;padding:4px 12px;font-size:11px;color:#BC8CFF;font-weight:600;}
+
+/* ── References section ── */
+.ref-wrap{font-family:'Instrument Sans',sans-serif;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-top:8px;margin-bottom:8px;box-sizing:border-box;width:100%;}
+.ref-label{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.ref-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:20px;}
+.ref-section-label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px;}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:28px;}
+.ref-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-sizing:border-box;}
+.ref-card-title{font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.ref-card-body{font-size:12px;color:var(--muted);line-height:1.7;}
+.ref-card-body a{color:#58A6FF;text-decoration:none;}
+.ref-list{display:flex;flex-direction:column;gap:10px;}
+.ref-lit{background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;box-sizing:border-box;}
+.ref-lit-title{font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:4px;}
+.ref-lit-body{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:4px;}
+.ref-lit a{font-size:11.5px;color:#58A6FF;text-decoration:none;}
+.ref-credits{text-align:center;padding:14px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:24px;}
+.ref-credits b{color:#79C0FF;}
+@media(max-width:768px){
+  .ref-wrap{padding:18px 16px;}
+  .ref-grid{grid-template-columns:1fr;}
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -190,10 +212,7 @@ with st.sidebar:
 banner_path = "banner.png"
 
 if os.path.exists(banner_path):
-    st.image(
-        banner_path,
-        use_container_width=True
-    )
+    st.image(banner_path, use_container_width=True)
 else:
     st.warning("banner.png not found. Check your Git repository root folder.")
 
@@ -239,7 +258,6 @@ st.markdown(f"""
 <div class="section-title">Key Indicators — {selected_year}</div>
 """, unsafe_allow_html=True)
 
-# KPI GRID — U5 Mortality is now card #2 (blue), replacing Avg. Pupils per Teacher
 st.markdown(
 f'<div class="kpi-grid">'
 f'<div class="kpi-card kpi-red"><div><span class="kpi-icon">📖</span><div class="kpi-label">Avg. Learning Poverty</div><div class="kpi-value">{avg_lp:.1f}%</div></div><div class="kpi-sub">Share of children below reading proficiency</div></div>'
@@ -251,7 +269,7 @@ f'</div>', unsafe_allow_html=True
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Stat Pills — Pupils per Teacher now replaces U5 Mortality slot ─────────────
+# ── Stat Pills ────────────────────────────────────────────────────────────────
 n_countries = len(filtered_df)
 avg_oos = filtered_df["children_out_of_school"].mean()
 avg_bmp = filtered_df["pupils_below_min_proficiency"].mean()
@@ -665,7 +683,7 @@ f'<div class="insight-subline">Under-5 mortality is the <b style="color:#BC8CFF"
 )
 st.markdown(proxy_panel_html, unsafe_allow_html=True)
 
-# Panel 3 — Action
+# ── Panel 3 — Action ──────────────────────────────────────────────────────────
 panel2_html = (
 '<div class="insight-panel">'
 '<div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">🎯 From Evidence to Action — What Policymakers Must Prioritize</div>'
@@ -685,29 +703,7 @@ f'<div class="action-item"><div class="action-icon">💸</div><div class="action
 st.markdown(panel2_html, unsafe_allow_html=True)
 
 # ── References & Credits ──────────────────────────────────────────────────────
-import streamlit.components.v1 as components
-
-_refs_html = """
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700;800&display=swap');
-  .ref-wrap { font-family:'Instrument Sans',sans-serif; background:#161B22; border:1px solid #30363D; border-radius:16px; padding:28px 32px; margin-top:8px; margin-bottom:8px; }
-  .ref-label { font-size:11px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#8B949E; margin-bottom:6px; }
-  .ref-title { font-size:20px; font-weight:800; color:#E6EDF3; margin-bottom:20px; }
-  .ref-section-label { font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px; }
-  .ref-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; margin-bottom:28px; }
-  .ref-card { background:#1C2333; border:1px solid #30363D; border-radius:10px; padding:14px 16px; }
-  .ref-card-title { font-size:11px; font-weight:700; color:#79C0FF; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
-  .ref-card-body { font-size:12px; color:#8B949E; line-height:1.7; }
-  .ref-card-body a { color:#58A6FF; text-decoration:none; }
-  .ref-list { display:flex; flex-direction:column; gap:10px; }
-  .ref-lit { background:#1C2333; border:1px solid #30363D; border-left:3px solid #BC8CFF; border-radius:10px; padding:12px 16px; }
-  .ref-lit-title { font-size:12.5px; color:#E6EDF3; font-weight:600; margin-bottom:4px; }
-  .ref-lit-body { font-size:12px; color:#8B949E; line-height:1.6; margin-bottom:4px; }
-  .ref-lit a { font-size:11.5px; color:#58A6FF; text-decoration:none; }
-  .ref-credits { text-align:center; padding:14px; font-size:12px; color:#8B949E; border-top:1px solid #30363D; margin-top:24px; }
-  .ref-credits b { color:#79C0FF; }
-</style>
-
+st.markdown("""
 <div class="ref-wrap">
   <div class="ref-label">References</div>
   <div class="ref-title">Data Sources, Indicators & Literature</div>
@@ -805,6 +801,4 @@ _refs_html = """
     Data: World Bank WDI · UNESCO UIS · UNICEF · 2000–2023
   </div>
 </div>
-"""
-
-components.html(_refs_html, height=1100, scrolling=False)
+""", unsafe_allow_html=True)
