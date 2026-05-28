@@ -919,10 +919,8 @@ components.html("""
 </style>
 </head>
 <body>
-<div class="ref-wrap">
 
 
-  </div>
 
   <div class="ref-section-label" style="color:#BC8CFF;">&#128218; Key Literature &amp; Reports</div>
   <div class="ref-list">
