@@ -49,6 +49,7 @@ section[data-testid="stSidebar"] .stSlider label{font-family:'Instrument Sans',s
 .kpi-red .kpi-value{color:var(--accent1);} .kpi-blue .kpi-value{color:var(--accent2);}
 .kpi-green .kpi-value{color:var(--accent3);} .kpi-yellow .kpi-value{color:var(--accent4);}
 .kpi-sub{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:auto;}
+.kpi-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(188,140,255,0.15);border:1px solid rgba(188,140,255,0.35);color:#BC8CFF;border-radius:20px;padding:2px 8px;margin-bottom:6px;}
 .stat-grid-container{display:grid;grid-template-columns:repeat(6,minmax(150px,1fr));gap:12px;width:100%;margin-bottom:20px;}
 @media(max-width:1200px){.stat-grid-container{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){.stat-grid-container{grid-template-columns:repeat(2,1fr);}}
@@ -177,7 +178,7 @@ with st.sidebar:
         <b>Model Used</b><br>
         Huber Robust Regression (statsmodels RLM)<br><br>
         <b>Significant Predictors</b><br>
-        ✅ u5_mortality (β = +22.74)<br>
+        ✅ u5_mortality (β = +22.74) ← #1<br>
         ✅ gov_expenditure (β = −3.64)<br>
         ✅ trained_teachers (β = −2.82)<br>
         ✗ pupil_teacher_ratio (not significant)<br><br>
@@ -228,6 +229,7 @@ avg_lp   = filtered_df["learning_poverty"].mean()
 avg_ptr  = filtered_df["pupil_teacher_ratio"].mean()
 avg_tt   = filtered_df["trained_teachers"].mean()
 avg_ge   = filtered_df["gov_expenditure"].mean()
+avg_u5   = filtered_df["u5_mortality"].mean()
 worst    = filtered_df.loc[filtered_df["learning_poverty"].idxmax(), "Country Name"]
 best     = filtered_df.loc[filtered_df["learning_poverty"].idxmin(), "Country Name"]
 worst_v  = filtered_df["learning_poverty"].max()
@@ -238,10 +240,11 @@ st.markdown(f"""
 <div class="section-title">Key Indicators — {selected_year}</div>
 """, unsafe_allow_html=True)
 
+# KPI GRID — U5 Mortality is now card #2 (blue), replacing Avg. Pupils per Teacher
 st.markdown(
 f'<div class="kpi-grid">'
 f'<div class="kpi-card kpi-red"><div><span class="kpi-icon">📖</span><div class="kpi-label">Avg. Learning Poverty</div><div class="kpi-value">{avg_lp:.1f}%</div></div><div class="kpi-sub">Share of children below reading proficiency</div></div>'
-f'<div class="kpi-card kpi-blue"><div><span class="kpi-icon">🏫</span><div class="kpi-label">Avg. Pupils per Teacher</div><div class="kpi-value">{avg_ptr:.1f}</div></div><div class="kpi-sub">Average pupil-to-teacher ratio, primary</div></div>'
+f'<div class="kpi-card kpi-blue"><div><span class="kpi-icon">🏥</span><div class="kpi-badge">★ #1 Strongest Predictor</div><div class="kpi-label">Avg. Under-5 Mortality</div><div class="kpi-value">{avg_u5:.1f}</div></div><div class="kpi-sub">Avg. deaths per 1,000 live births · β = +22.74 (Huber RLM)</div></div>'
 f'<div class="kpi-card kpi-green"><div><span class="kpi-icon">🎓</span><div class="kpi-label">Avg. Trained Teachers</div><div class="kpi-value">{avg_tt:.1f}%</div></div><div class="kpi-sub">Teachers meeting national training standards</div></div>'
 f'<div class="kpi-card kpi-yellow"><div><span class="kpi-icon">💰</span><div class="kpi-label">Avg. Gov. Expenditure</div><div class="kpi-value">{avg_ge:.1f}%</div></div><div class="kpi-sub">Govt. expenditure per student (% GDP per capita)</div></div>'
 f'</div>', unsafe_allow_html=True
@@ -249,10 +252,9 @@ f'</div>', unsafe_allow_html=True
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ── Stat Pills ─────────────────────────────────────────────────────────────────
+# ── Stat Pills — Pupils per Teacher now replaces U5 Mortality slot ─────────────
 n_countries = len(filtered_df)
 avg_oos = filtered_df["children_out_of_school"].mean()
-avg_u5  = filtered_df["u5_mortality"].mean()
 avg_bmp = filtered_df["pupils_below_min_proficiency"].mean()
 
 st.markdown(f"""
@@ -260,7 +262,7 @@ st.markdown(f"""
     <div class="stat-pill"><div class="stat-pill-label">🔴 Highest LP</div><div class="stat-pill-value">{worst_v:.1f}%</div><div class="stat-pill-country">{worst}</div></div>
     <div class="stat-pill"><div class="stat-pill-label">🟢 Lowest LP</div><div class="stat-pill-value">{best_v:.1f}%</div><div class="stat-pill-country">{best}</div></div>
     <div class="stat-pill"><div class="stat-pill-label">🧒 Out of School</div><div class="stat-pill-value">{avg_oos:.1f}%</div><div class="stat-pill-country">Avg. children not enrolled</div></div>
-    <div class="stat-pill"><div class="stat-pill-label">🏥 U5 Mortality</div><div class="stat-pill-value">{avg_u5:.1f}</div><div class="stat-pill-country">Avg. deaths per 1k births</div></div>
+    <div class="stat-pill"><div class="stat-pill-label">🏫 Pupils per Teacher</div><div class="stat-pill-value">{avg_ptr:.1f}</div><div class="stat-pill-country">Avg. pupil-to-teacher ratio</div></div>
     <div class="stat-pill"><div class="stat-pill-label">📉 Below Min. Prof.</div><div class="stat-pill-value">{avg_bmp:.1f}%</div><div class="stat-pill-country">Avg. pupils below minimum</div></div>
     <div class="stat-pill"><div class="stat-pill-label">🌍 Countries</div><div class="stat-pill-value">{n_countries}</div><div class="stat-pill-country">In filtered dataset</div></div>
 </div>
@@ -383,7 +385,7 @@ with col_scatter:
 
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-# ── ROW 3: Radar + U5 MORTALITY SCATTER (replaces heatmap) ───────────────────
+# ── ROW 3: Radar + U5 MORTALITY SCATTER ──────────────────────────────────────
 st.markdown("""
 <div class="section-label">Multi-Factor Analysis</div>
 <div class="section-title">Driver Profiles & Strongest Regression Signal</div>
@@ -431,7 +433,6 @@ with col_radar:
         st.info("Need at least 6 countries for radar chart.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ── NEW: U5 Mortality vs Learning Poverty scatter ─────────────────────────────
 with col_u5:
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
     st.markdown('<div class="chart-title">🏥 Learning Poverty vs. Under-5 Mortality — Strongest Driver</div>', unsafe_allow_html=True)
@@ -472,7 +473,6 @@ with col_u5:
             selector=dict(mode="markers"),
             marker=dict(size=10, line=dict(width=0.5, color="rgba(255,255,255,0.2)"))
         )
-        # Annotate the trendline with the coefficient
         fig_u5.update_layout(**LAYOUT_BASE)
         fig_u5.update_layout(
             xaxis={**AXIS_BASE, "title_text": "Under-5 Mortality Rate (per 1,000 live births)"},
@@ -582,7 +582,6 @@ st.markdown(f"""
 <div class="section-title">What the Data Is Telling Us — And What Must Be Done</div>
 """, unsafe_allow_html=True)
 
-# Conditional text
 if trend_direction == "declining":
     trend_msg = "Progress is real but dangerously slow — <b>the 2030 deadline is fewer than 5 years away</b>."
 elif trend_direction == "stagnating":
@@ -601,7 +600,6 @@ elif selected_driver == "children_out_of_school":
 else:
     driver_msg = "This driver directly mirrors what children are failing to learn. It is the crisis, not just a symptom."
 
-# Panel 1 — Scale of Crisis
 panel1_html = (
 '<div class="insight-panel">'
 f'<div class="insight-headline" style="color:{insight_color};">{avg_lp:.1f}% of children cannot read a simple text by age 10.</div>'
@@ -619,7 +617,7 @@ f'<div class="insight-card green"><div class="insight-card-title">✅ What Works
 )
 st.markdown(panel1_html, unsafe_allow_html=True)
 
-# ── NEW: U5 Mortality Proxy Explanation Panel ─────────────────────────────────
+# ── U5 Mortality Proxy Explanation Panel ──────────────────────────────────────
 u5_corr = working_df[["learning_poverty","u5_mortality"]].corr(method='spearman').iloc[0,1]
 
 proxy_panel_html = (
@@ -674,9 +672,9 @@ panel2_html = (
 '<div style="font-size:14px;font-weight:700;color:#79C0FF;margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;">🎯 From Evidence to Action — What Policymakers Must Prioritize</div>'
 '<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">The Huber regression model identifies the levers with the strongest statistical signal. The following actions are ranked by model weight and policy feasibility.</div>'
 '<div class="action-row">'
+f'<div class="action-item"><div class="action-icon">🏥</div><div class="action-text"><b>Treat health as an education investment</b>U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is the strongest model predictor (β = +22.74). Nutrition programs, clean water, and basic healthcare directly improve children\'s cognitive readiness. Joint health-education budgeting is not optional.</div></div>'
 f'<div class="action-item"><div class="action-icon">🧑‍🏫</div><div class="action-text"><b>Train every teacher, not just hire more</b>Average trained teacher coverage is <b>{avg_tt:.1f}%</b> — a gap of <b>{tt_gap:.1f} pp</b> from the 80% benchmark. Untrained teachers are a significant model predictor of high LP. Pre-service and in-service training must be mandatory, funded, and monitored.</div></div>'
 f'<div class="action-item"><div class="action-icon">💸</div><div class="action-text"><b>Spend smarter, not just more</b>Average gov. expenditure is <b>{avg_ge:.1f}%</b> of GDP per capita. Redirect budgets toward foundational literacy programs in grades 1–3, where intervention has the highest ROI.</div></div>'
-f'<div class="action-item"><div class="action-icon">🏥</div><div class="action-text"><b>Treat health as an education investment</b>U5 mortality (avg. <b>{avg_u5:.1f}</b> per 1,000) is the strongest model predictor. Nutrition programs, clean water, and basic healthcare directly improve children\'s cognitive readiness. Joint health-education budgeting is not optional.</div></div>'
 '<div class="action-item"><div class="action-icon">📊</div><div class="action-text"><b>Close the data gap</b>Multiple countries show missing LP data for recent years. Without annual, standardized assessments aligned to PIRLS/EGRA standards, governments cannot course-correct in time for 2030.</div></div>'
 '</div>'
 '<div style="margin-top:22px;padding:16px;background:rgba(247,129,102,0.07);border-radius:10px;border:1px solid rgba(247,129,102,0.2);">'
@@ -693,5 +691,3 @@ st.markdown("""
     Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational
 </div>
 """, unsafe_allow_html=True)
-
-
