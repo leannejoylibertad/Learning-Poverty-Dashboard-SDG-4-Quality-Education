@@ -558,7 +558,12 @@ for ref in literature:
 
 # ── Footer Credits ────────────────────────────────────────────────────────────
 st.markdown(f"""
-<div class="credits">
-    SDG 4 Analytical Platform Portfolio · Built with <b>Streamlit</b> and <b>Plotly Engine</b> · Framework Year Context: <b>{selected_year}</b>
+
+  <div class="ref-credits">
+    Dashboard created for <b>SDG 4 Tracking Matrix</b> &middot; Global Insights Interface Operational &middot;
+    Data: World Bank WDI &middot; UNESCO UIS &middot; UNICEF &middot; 2000&ndash;2023
+  </div>
+
 </div>
+
 """, unsafe_allow_html=True)
