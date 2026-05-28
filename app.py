@@ -244,7 +244,7 @@ st.markdown(f"""
 st.markdown(
 f'<div class="kpi-grid">'
 f'<div class="kpi-card kpi-red"><div><span class="kpi-icon">📖</span><div class="kpi-label">Avg. Learning Poverty</div><div class="kpi-value">{avg_lp:.1f}%</div></div><div class="kpi-sub">Share of children below reading proficiency</div></div>'
-f'<div class="kpi-card kpi-blue"><div><span class="kpi-icon">🏥</span><div class="kpi-badge">★ #1 Strongest Predictor</div><div class="kpi-label">Avg. Under-5 Mortality</div><div class="kpi-value">{avg_u5:.1f}</div></div><div class="kpi-sub">Avg. deaths per 1,000 live births · β = +22.74 (Huber RLM)</div></div>'
+f'<div class="kpi-card kpi-blue"><div><span class="kpi-icon">🏥</span><div class="kpi-label">Avg. Under-5 Mortality</div><div class="kpi-value">{avg_u5:.1f}</div></div><div class="kpi-sub">Deaths per 1,000 live births · High mortality signals poor health, nutrition & learning conditions</div></div>'
 f'<div class="kpi-card kpi-green"><div><span class="kpi-icon">🎓</span><div class="kpi-label">Avg. Trained Teachers</div><div class="kpi-value">{avg_tt:.1f}%</div></div><div class="kpi-sub">Teachers meeting national training standards</div></div>'
 f'<div class="kpi-card kpi-yellow"><div><span class="kpi-icon">💰</span><div class="kpi-label">Avg. Gov. Expenditure</div><div class="kpi-value">{avg_ge:.1f}%</div></div><div class="kpi-sub">Govt. expenditure per student (% GDP per capita)</div></div>'
 f'</div>', unsafe_allow_html=True
