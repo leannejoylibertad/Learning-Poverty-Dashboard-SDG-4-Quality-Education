@@ -181,7 +181,6 @@ with st.sidebar:
         ✅ u5_mortality (β = +22.74) ← #1<br>
         ✅ gov_expenditure (β = −3.64)<br>
         ✅ trained_teachers (β = −2.82)<br>
-        ✗ pupil_teacher_ratio (not significant)<br><br>
         <b>Data Coverage</b><br>
         75 countries · 2000–2023 (no 2021)
     </div>
