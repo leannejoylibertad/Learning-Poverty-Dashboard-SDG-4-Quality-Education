@@ -924,6 +924,9 @@ components.html("""
   <div class="ref-label">References</div>
   <div class="ref-title">Data Sources, Indicators &amp; Literature</div>
 
+  <!-- ══════════════════════════════════════════════════════
+       DATASETS & INDICATORS (unchanged)
+  ══════════════════════════════════════════════════════ -->
   <div class="ref-section-label" style="color:#79C0FF;">&#128230; Datasets &amp; Indicators</div>
   <div class="ref-grid">
 
@@ -985,37 +988,75 @@ components.html("""
 
   </div>
 
-  <div class="ref-section-label" style="color:#BC8CFF;">&#128218; Key Literature &amp; Reports</div>
+  <!-- ══════════════════════════════════════════════════════
+       KEY LITERATURE — organised by explanatory variable
+       (aligned with notebook Part 3 regression framework)
+  ══════════════════════════════════════════════════════ -->
+  <div class="ref-section-label" style="color:#BC8CFF;">&#128218; Key Literature — By Explanatory Variable</div>
   <div class="ref-list">
 
-    <div class="ref-lit">
-      <div class="ref-lit-title">World Bank (2022) — <em>The State of Global Learning Poverty</em></div>
-      <div class="ref-lit-body">Flagship report defining the learning poverty metric and the SDG 4 target of under 10% by 2030. Core reference for this dashboard's response variable.</div>
-      <a href="https://www.worldbank.org/en/topic/education/publication/state-of-global-learning-poverty" target="_blank">worldbank.org &#8594; State of Global Learning Poverty</a>
+    <!-- RESPONSE VARIABLE -->
+    <div class="ref-lit" style="border-left-color:#F78166;">
+      <div class="ref-lit-title" style="color:#F78166;">&#128214; Response Variable — Learning Poverty</div>
+      <div class="ref-lit-body">
+        <b>World Bank &amp; UNESCO (2019).</b> <em>Ending Learning Poverty: What Will It Take?</em> Washington, DC: World Bank.<br>
+        Jointly developed the learning poverty metric as the headline indicator for SDG 4.1.1(a), capturing both access (enrollment) and quality (proficiency) of primary education.
+      </div>
+      <a href="https://documents.worldbank.org/en/publication/documents-reports/documentdetail/119381571921673754" target="_blank">documents.worldbank.org &#8594; Ending Learning Poverty (2019)</a>
     </div>
 
+    <!-- PUPIL-TEACHER RATIO -->
     <div class="ref-lit">
-      <div class="ref-lit-title">Alderman, H., Hoddinott, J., &amp; Kinsey, B. (2006) — <em>Long term consequences of early childhood malnutrition</em></div>
-      <div class="ref-lit-body">Oxford Economic Papers. Demonstrates that early malnutrition in high-mortality settings produces lasting deficits in cognitive development and school attainment — basis for using u5_mortality as a composite proxy.</div>
-      <a href="https://academic.oup.com/oep/article/58/3/450/2361942" target="_blank">academic.oup.com &#8594; Oxford Economic Papers, Vol. 58(3)</a>
+      <div class="ref-lit-title">&#128208; Pupil-Teacher Ratio &mdash; Expected Sign: (+)</div>
+      <div class="ref-lit-body">
+        <b>Angrist, J. D., &amp; Lavy, V. (1999).</b> Using Maimonides' Rule to estimate the effect of class size on scholastic achievement. <em>Quarterly Journal of Economics, 114</em>(2), 533–575.<br>
+        Natural experiment in Israel establishing the causal positive effect of lower pupil-teacher ratios on primary-level reading and math scores.<br><br>
+        <b>Duflo, E., Dupas, P., &amp; Kremer, M. (2015).</b> School governance, teacher incentives, and pupil-teacher ratios: Experimental evidence from Kenyan primary schools. <em>Journal of Political Economy, 123</em>(2), 392–430.<br>
+        Demonstrates in Kenyan primary schools that lowering pupil-teacher ratios through contract teachers significantly improves learning outcomes when local school governance and incentives are appropriately aligned.
+      </div>
     </div>
 
+    <!-- TRAINED TEACHERS -->
     <div class="ref-lit">
-      <div class="ref-lit-title">UNICEF, WHO &amp; World Bank (2023) — <em>Levels &amp; Trends in Child Mortality Report</em></div>
-      <div class="ref-lit-body">Annual joint report documenting under-5 mortality trends globally, confirming the overlap between high child mortality environments and poor educational outcomes (SDG 3–SDG 4 interconnect).</div>
-      <a href="https://data.unicef.org/resources/levels-and-trends-in-child-mortality/" target="_blank">data.unicef.org &#8594; Levels &amp; Trends in Child Mortality</a>
+      <div class="ref-lit-title">&#129337; Trained Teachers (%) &mdash; Expected Sign: (&minus;)</div>
+      <div class="ref-lit-body">
+        <b>Rivkin, S. G., Hanushek, E. A., &amp; Kain, J. F. (2005).</b> Teachers, schools, and academic achievement. <em>Econometrica, 73</em>(2), 417–458.<br>
+        Foundational study demonstrating that teacher quality is the most influential within-school factor on student academic outcomes.<br><br>
+        <b>Araujo, M. C., Carneiro, P., Cruz-Aguayo, Y., &amp; Schady, N. (2016).</b> Teacher quality and learning outcomes in kindergarten. <em>Quarterly Journal of Economics, 131</em>(3), 1415–1453.<br>
+        Rigorous evidence from developing-nation primary settings that specific teacher training and classroom observation dynamics directly reduce the likelihood of children falling below minimum proficiency thresholds.
+      </div>
     </div>
 
+    <!-- GOV. EXPENDITURE -->
     <div class="ref-lit">
-      <div class="ref-lit-title">UNESCO (2023) — <em>Global Education Monitoring (GEM) Report</em></div>
-      <div class="ref-lit-body">Annual report tracking global progress toward SDG 4, including foundational learning outcomes, teacher training gaps, and public education spending trends across low- and middle-income countries.</div>
-      <a href="https://www.unesco.org/gem-report/en" target="_blank">unesco.org &#8594; Global Education Monitoring Report</a>
+      <div class="ref-lit-title">&#128184; Government Education Expenditure &mdash; Expected Sign: (&minus;)</div>
+      <div class="ref-lit-body">
+        <b>Jackson, C. K., Johnson, R. C., &amp; Persico, C. (2016).</b> The effects of school spending on educational and economic outcomes: Evidence from school finance reforms. <em>Quarterly Journal of Economics, 131</em>(1), 157–218.<br>
+        Robust evidence that increases in per-pupil spending directly improve educational attainment and lower adult poverty rates.<br><br>
+        <b>Al-Samarrai, S. (2006).</b> Achieving education for all: How much does money matter? <em>Journal of International Development, 18</em>(2), 179–206.<br>
+        Cross-country developmental evidence that sufficient public expenditure is essential to expand access and quality, provided there is strong institutional capacity to use funds effectively.
+      </div>
     </div>
 
-    <div class="ref-lit">
-      <div class="ref-lit-title">Glewwe, P. &amp; Muralidharan, K. (2016) — <em>Improving Education Outcomes in Developing Countries</em></div>
-      <div class="ref-lit-body">Handbook of the Economics of Education, Vol. 5. Evidence review on teacher training, class size, and expenditure effectiveness — basis for trained teachers and gov. expenditure policy recommendations.</div>
-      <a href="https://www.sciencedirect.com/science/article/pii/S1574069216000039" target="_blank">sciencedirect.com &#8594; Handbook of Economics of Education, Vol. 5</a>
+    <!-- U5 MORTALITY — STRONGEST PREDICTOR -->
+    <div class="ref-lit" style="border-left-color:#BC8CFF;">
+      <div class="ref-lit-title" style="color:#BC8CFF;">&#127973; Under-5 Mortality Rate &mdash; Expected Sign: (+) &nbsp;|&nbsp; Strongest Predictor (&beta;&nbsp;=&nbsp;+22.74)</div>
+      <div class="ref-lit-body">
+        <b>Alderman, H., Hoddinott, J., &amp; Kinsey, B. (2006).</b> Long term consequences of early childhood malnutrition. <em>Oxford Economic Papers, 58</em>(3), 450–474.<br>
+        Shows that early childhood malnutrition — endemic in high-mortality settings — causes lasting damage to cognitive development and school performance, directly driving up learning poverty.<br><br>
+        <b>Glewwe, P., Jacoby, H. G., &amp; King, E. M. (2001).</b> Early childhood nutrition and academic achievement: A longitudinal analysis. <em>Journal of Public Economics, 81</em>(3), 345–368.<br>
+        Longitudinal study demonstrating that early nutritional deficiencies delay school enrollment and depress academic performance, confirming u5_mortality as a robust composite proxy for the broader socioeconomic and early childhood health environment.
+      </div>
+      <a href="https://academic.oup.com/oep/article/58/3/450/2361942" target="_blank">academic.oup.com &#8594; Oxford Economic Papers, 58(3) &mdash; Alderman et al. (2006)</a>
+    </div>
+
+    <!-- HEALTH-GROWTH NEXUS FOUNDATION -->
+    <div class="ref-lit" style="border-left-color:#56D364;">
+      <div class="ref-lit-title" style="color:#56D364;">&#128202; Theoretical Foundation &mdash; Health, Growth &amp; Human Capital</div>
+      <div class="ref-lit-body">
+        <b>Bloom, D. E., Canning, D., &amp; Sevilla, J. (2004).</b> The effect of health on economic growth: A production function approach. <em>World Development, 32</em>(1), 1–13.<br>
+        Production function framework linking health conditions (proxied by child mortality) to human capital formation — theoretical basis for including u5_mortality as a macro-level educational predictor alongside school-level variables.
+      </div>
     </div>
 
   </div>
@@ -1028,17 +1069,15 @@ components.html("""
 </div>
 
 <script>
-  // Auto-resize iframe to exact content height — no clipping, no fixed px
   function sendHeight() {
     const h = document.documentElement.scrollHeight;
     window.parent.postMessage({ type: 'streamlit:setFrameHeight', height: h }, '*');
   }
   window.addEventListener('load', sendHeight);
   window.addEventListener('resize', sendHeight);
-  // Fire again after fonts/layout settle
   setTimeout(sendHeight, 200);
   setTimeout(sendHeight, 600);
 </script>
 </body>
 </html>
-""", height=1250, scrolling=False)
+""", height=1400, scrolling=False)
