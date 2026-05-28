@@ -685,9 +685,103 @@ f'<div class="action-item"><div class="action-icon">💸</div><div class="action
 )
 st.markdown(panel2_html, unsafe_allow_html=True)
 
-# ── Credits ───────────────────────────────────────────────────────────────────
+# ── References & Credits ──────────────────────────────────────────────────────
 st.markdown("""
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-top:8px;margin-bottom:24px;">
+  <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">References</div>
+  <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:20px;">Data Sources, Indicators &amp; Literature</div>
+
+  <div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#79C0FF;margin-bottom:12px;">📦 Datasets &amp; Indicators</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:28px;">
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Learning Poverty Rate</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">World Bank &amp; UNESCO UIS — Share of children unable to read a simple text by age 10 (harmonized from PIRLS, PASEC, EGRA assessments).<br>
+      <a href="https://datatopics.worldbank.org/education/wbe" target="_blank" style="color:#58A6FF;text-decoration:none;">datatopics.worldbank.org/education/wbe</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Under-5 Mortality Rate</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">World Bank WDI — Deaths of children under 5 per 1,000 live births. Strongest predictor of learning poverty in this model.<br>
+      <a href="https://data.worldbank.org/indicator/SH.DYN.MORT" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SH.DYN.MORT</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Trained Teachers (%)</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">UNESCO UIS — Percentage of primary teachers who have received minimum organized teacher training per national standards.<br>
+      <a href="https://data.worldbank.org/indicator/SE.PRM.TCAQ.ZS" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SE.PRM.TCAQ.ZS</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Govt. Education Expenditure</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">World Bank WDI — Government expenditure per primary student as % of GDP per capita.<br>
+      <a href="https://data.worldbank.org/indicator/SE.XPD.PRIM.PC.ZS" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SE.XPD.PRIM.PC.ZS</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Pupil-Teacher Ratio</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">UNESCO UIS / World Bank WDI — Pupils per teacher at primary level (headcount basis).<br>
+      <a href="https://data.worldbank.org/indicator/SE.PRM.ENRL.TC.ZS" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SE.PRM.ENRL.TC.ZS</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Children Out of School (%)</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">UNESCO UIS — Percentage of primary-school-age children not enrolled in any level of education.<br>
+      <a href="https://data.worldbank.org/indicator/SE.PRM.UNER.ZS" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SE.PRM.UNER.ZS</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Pupils Below Minimum Proficiency</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">UNESCO UIS — Share of pupils at end of primary who have not achieved minimum reading proficiency (SDG 4.1.1 indicator).<br>
+      <a href="https://data.worldbank.org/indicator/SE.LPV.PRIM.SD" target="_blank" style="color:#58A6FF;text-decoration:none;">data.worldbank.org/indicator/SE.LPV.PRIM.SD</a></div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;color:#79C0FF;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">SDG 4 Global Framework</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;">United Nations — Sustainable Development Goal 4: Ensure inclusive and equitable quality education for all by 2030.<br>
+      <a href="https://sdgs.un.org/goals/goal4" target="_blank" style="color:#58A6FF;text-decoration:none;">sdgs.un.org/goals/goal4</a></div>
+    </div>
+
+  </div>
+
+  <div style="font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#BC8CFF;margin-bottom:12px;">📚 Key Literature &amp; Reports</div>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px;">
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;">
+      <div style="font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;">World Bank (2022) — <em>The State of Global Learning Poverty</em></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Flagship report defining the learning poverty metric and establishing the SDG 4 target of reducing learning poverty to under 10% by 2030. Core reference for this dashboard's response variable.</div>
+      <a href="https://www.worldbank.org/en/topic/education/publication/state-of-global-learning-poverty" target="_blank" style="font-size:11.5px;color:#58A6FF;text-decoration:none;">worldbank.org → State of Global Learning Poverty</a>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;">
+      <div style="font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;">Alderman, H., Hoddinott, J., &amp; Kinsey, B. (2006) — <em>Long term consequences of early childhood malnutrition</em></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Oxford Economic Papers. Basis for using under-5 mortality as a composite proxy — demonstrates that early malnutrition in high-mortality settings produces lasting deficits in cognitive development and school attainment.</div>
+      <a href="https://academic.oup.com/oep/article/58/3/450/2361942" target="_blank" style="font-size:11.5px;color:#58A6FF;text-decoration:none;">academic.oup.com → Oxford Economic Papers, Vol. 58(3)</a>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;">
+      <div style="font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;">UNICEF, WHO &amp; World Bank (2023) — <em>Levels &amp; Trends in Child Mortality Report</em></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Annual joint report documenting under-5 mortality trends globally, confirming the structural overlap between high child mortality environments and poor educational outcomes (SDG 3–SDG 4 interconnect).</div>
+      <a href="https://data.unicef.org/resources/levels-and-trends-in-child-mortality/" target="_blank" style="font-size:11.5px;color:#58A6FF;text-decoration:none;">data.unicef.org → Levels &amp; Trends in Child Mortality</a>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;">
+      <div style="font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;">UNESCO (2023) — <em>Global Education Monitoring (GEM) Report</em></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Annual report tracking global progress toward SDG 4, including foundational learning outcomes, teacher training gaps, and public education spending trends across low- and middle-income countries.</div>
+      <a href="https://www.unesco.org/gem-report/en" target="_blank" style="font-size:11.5px;color:#58A6FF;text-decoration:none;">unesco.org → Global Education Monitoring Report</a>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-left:3px solid #BC8CFF;border-radius:10px;padding:12px 16px;">
+      <div style="font-size:12.5px;color:var(--text);font-weight:600;margin-bottom:2px;">Glewwe, P. &amp; Muralidharan, K. (2016) — <em>Improving Education Outcomes in Developing Countries</em></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;">Handbook of the Economics of Education, Vol. 5. Evidence review on teacher training, class size, and expenditure effectiveness — basis for the trained teachers and gov. expenditure policy recommendations.</div>
+      <a href="https://www.sciencedirect.com/science/article/pii/S1574069216000039" target="_blank" style="font-size:11.5px;color:#58A6FF;text-decoration:none;">sciencedirect.com → Handbook of Economics of Education, Vol. 5</a>
+    </div>
+
+  </div>
+</div>
+
 <div class="credits">
-    Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational
+    Dashboard created for <b>SDG 4 Tracking Matrix</b> · Global Insights Interface Operational ·
+    Data: World Bank WDI · UNESCO UIS · UNICEF · 2000–2023
 </div>
 """, unsafe_allow_html=True)
